@@ -1,0 +1,48 @@
+﻿@model List<Domain.SubCategoryViewModel>
+
+<li class="dropdown me-3 d-none d-lg-block">
+    <button class="btn btn-primary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-text-left text-white me-2" viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+                  d="M2 12.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"></path>
+        </svg>
+        All Categories
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-lg">
+        @foreach (var category in Model)
+        {
+            <li class="dropdown-menu-list">
+                <a href="javascript:void(0)" class="dropdown-item d-flex justify-content-between mb-1 py-1">
+                    <div>
+                        <img src="~/@category.Category.ImgPath" alt="@category.Category.CategoryName" width="24" height="24" />
+                        <span class="ms-1">@category.Category.CategoryName</span>
+                    </div>
+                    <div>
+                        <i class="feather-icon icon-chevron-right"></i>
+                    </div>
+                </a>
+                @if (category.SubCategories.Count != 0)
+                {
+                    <div class="dropdown-menu-list-submenu">
+                        <div>
+                            <ul class="list-unstyled">
+
+                                @foreach (var subCategory in category.SubCategories)
+                                {
+                                    <li>
+                                        <div class="d-flex align-items-center">
+                                            <img src="~/@subCategory.ImgPath" alt="@subCategory.CategoryName" width="24" height="24" />
+                                            <a asp-action="ShopItems" asp-route-id="@subCategory.Id" class="nav-link ms-1">@subCategory.CategoryName</a>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                }
+
+            </li>
+        }
+    </ul>
+</li>

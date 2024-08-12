@@ -1,0 +1,40 @@
+﻿@model Domain.PaginatedList
+
+<div class="bg-tertiary-subtle border rounded-bottom d-md-flex justify-content-between align-items-center px-6 py-6">
+    @if(Model.TotalItems > 0)
+    {
+        <span>Showing @Model.FirstItemIndex to @Model.LastItemIndex of @Model.TotalItems entries</span>
+    }
+    else
+    {
+        <span>No entries found</span>
+    }
+    <nav class="mt-2 mt-md-0">
+        <ul class="pagination mb-0">
+            @if (Model.PageIndex > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-pageNumber="1">First</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasPreviousPage ? "":"disabled")">
+                <a class="page-link" asp-route-pageNumber="@(Model.PageIndex-1)">Previous</a>
+            </li>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(Model.PageIndex == i ? "active" : "")">
+                    <a class="page-link" asp-route-pageNumber="@i">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNextPage ? "":"disabled")">
+                <a class="page-link" asp-route-pageNumber="@(Model.PageIndex+1)">Next</a>
+            </li>
+            @if (Model.PageIndex < Model.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-pageNumber="@Model.TotalPages">Last</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>

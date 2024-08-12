@@ -1,0 +1,144 @@
+﻿@model List<Domain.Orders>
+
+@{
+    ViewData["Title"] = "ViewOrders";
+    Layout = "_AdminLayout";
+    var statusOptions = ViewBag.StatusOptions as List<string>;
+}
+
+<div class="container">
+    <!-- Notifications -->
+    @* <div class="row mt-3">
+        <div class="col-12">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <h4 class="alert-heading">Notifications</h4>
+                <ul>
+                    <li>
+                        <a href="#">New Order! You have a new order from John Doe.</a>
+                        <p>Order #123 | Placed on 2024-06-03 | Total: $100</p>
+                    </li>
+                    <li>
+                        <a href="#">Order Update Order #122 has been updated.</a>
+                        <p>Order #122 | Updated on 2024-06-03 | Status: Delivered</p>
+                    </li>
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div> *@
+
+    <!-- Filters -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4>Filter Orders</h4>
+                    <form method="get" class="d-flex row g-3">
+                        <div class="col-md-3">
+                            <label for="ordernumber" class="form-label">Order Number</label>
+                            <input type="text" class="form-control" id="ordernumber" name="ordernumber" placeholder="Enter Order Number">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="customerName" class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" id="customerName" name="customerName" placeholder="Enter Customer Name">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="orderDate" class="form-label">Order Date</label>
+                            <input type="date" class="form-control" id="orderDate" name="orderDate">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="statusFilter" class="form-select" id="status">
+                                <option value="">All</option>
+                                @foreach (var status in statusOptions)
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary mt-3">Filter</button>
+                            <button type="reset" class="btn btn-secondary mt-3">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h2>Orders List</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer Name</th>
+                                    <th>Order Date</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model)
+                                {
+                                    <tr>
+                                        <td>@order.OrderNum</td>
+                                        <td>@order.User.UserName</td>
+                                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                                        <td>
+                                            <span class="badge bg-@(order.Status == "Pending" ? "warning" : order.Status == "Delivered" ? "success" : order.Status == "Processing" ? "info":"danger")">@order.Status</span>
+                                        </td>
+                                        <td>$@order.TotalBill</td>
+                                        <td>
+                                            <a asp-action="ViewOrder" asp-route-id="@order.Id" class="btn btn-sm btn-primary">View</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.Order != null)
+    {
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="alert alert-light alert-dismissible fade show" role="alert">
+                    <h4 class="alert-heading">Order Details</h4>
+                    <partial name="_OrderDetails" model="ViewBag.Order" />
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="btn-group">
+                                <a asp-action="OrderStatusUpdate" asp-controller="Order" asp-route-status="@("Cancelled")" asp-route-id="@ViewBag.Order.Id" class="btn btn-danger">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                                <a asp-action="OrderStatusUpdate" asp-controller="Order" asp-route-status="@("Processing")" asp-route-id="@ViewBag.Order.Id" class="btn btn-success">
+                                    <i class="bi bi-check"></i> Mark as Delivered
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+</div>
+
+@section Scripts {
+    <script src="~/lib/flatpickr/dist/flatpickr.min.js"></script>
+    <!-- <script src="~//libs/jquery/dist/jquery.min.js"></script> -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+    <script src="~/js/theme.min.js"></script>
+}

@@ -1,0 +1,239 @@
+﻿@model List<Domain.Product>
+
+<title>All Products</title>
+
+<body>
+
+    <script src="~/js/vendors/validation.js"></script>
+
+    <main>
+        <!-- section-->
+        <div class="mt-4">
+            <div class="container">
+                <!-- row -->
+                <div class="row">
+                    <!-- col -->
+                    <div class="col-12">
+                        <!-- breadcrumb -->
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="#!">Home</a></li>
+                                <li class="breadcrumb-item"><a href="#!">Shop</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Beverages</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- section -->
+        <div class="mt-8 mb-lg-14 mb-8">
+            <!-- container -->
+            <div class="container">
+                <!-- row -->
+                <div class="row gx-10">
+                    <!-- col -->
+                    <aside class="col-lg-3 col-md-4 mb-6 mb-md-0">
+                        <div class="offcanvas offcanvas-start offcanvas-collapse w-md-50" tabindex="-1" id="offcanvasCategory" aria-labelledby="offcanvasCategoryLabel">
+                            <div class="offcanvas-body ps-lg-2 pt-lg-0">
+                                <div class="mb-8">
+                                    <!-- title -->
+                                    <h5 class="mb-3">Categories</h5>
+                                    <!-- nav -->
+                                    <ul class="nav nav-category" id="categoryCollapseMenu">
+                                        @foreach (var category in ViewBag.Categories)
+                                        {
+                                            <li class="nav-item border-bottom w-100">
+                                                <a href="#" class="nav-link collapsed" data-bs-toggle="collapse" data-bs-target="#categoryFlush@(category.Category.Id)" aria-expanded="false" aria-controls="categoryFlush@(category.Category.Id)">
+                                                    @category.Category.CategoryName
+                                                    <i class="feather-icon icon-chevron-right"></i>
+                                                </a>
+                                                <!-- accordion collapse -->
+                                                <div id="categoryFlush@(category.Category.Id)" class="accordion-collapse collapse" data-bs-parent="#categoryCollapseMenu">
+                                                    <div>
+                                                        <!-- nav -->
+                                                        <ul class="nav flex-column ms-3">
+                                                            @foreach (var subCategory in category.SubCategories)
+                                                            {
+                                                                <li class="nav-item">
+                                                                    <a asp-action="ShopItems" asp-route-id="@subCategory.Id" class="nav-link">@subCategory.CategoryName</a>
+                                                                    </li>
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                    <section class="col-lg-9 col-md-12">
+                        <!-- card -->
+                        <div class="card mb-4 bg-light border-0">
+                            <!-- card body -->
+                            <div class="card-body p-9">
+                                @if (TempData["CategoryName"] != null)
+                                {
+                                    <h2 class="mb-0 fs-1">@TempData["CategoryName"]</h2>
+                                }
+                                else
+                                {
+                                    <h2 class="mb-0 fs-1">All Products</h2>
+                                }
+                            </div>
+                        </div>
+                        <!-- list icon -->
+                        <div class="d-lg-flex justify-content-between align-items-center">
+                            <div class="mb-3 mb-lg-0">
+                                @if (Model.Count() > 1)
+                                {
+                                    <p class="mb-0"><span class="text-dark">@Model.Count()</span> Products found </p>
+                                }
+                                else if (Model.Count() == 1)
+                                {
+                                    <p class="mb-0"><span class="text-dark">1</span> Product found </p>
+                                }
+                            </div>
+
+                            <!-- icon -->
+                            <div class="d-md-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <a onclick="list()" id="blist"  class="text-muted me-3"><i class="bi bi-list-ul"></i></a>
+                                        <a onclick="grid()" id="bgrid"  class="me-3 text-muted"><i class="bi bi-grid"></i></a>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex mt-2 mt-lg-0">
+                                    <div class="me-2 flex-grow-1">
+                                        <!-- select option -->
+                                        <form asp-action="ShopItems" asp-controller="Home" method="get">
+                                            <select class="form-select" name="pageSize" onchange="this.form.submit()">
+                                                <option value="@ViewBag.PageSize" selected hidden>@ViewBag.PageSize</option>
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="30">30</option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                    <div>
+                                        <!-- select option -->
+                                        <select class="form-select">
+                                            <option selected>Sort by: Featured</option>
+                                            <option value="Low to High">Price: Low to High</option>
+                                            <option value="High to Low">Price: High to Low</option>
+                                            <option value="Release Date">Release Date</option>
+                                            <option value="Avg. Rating">Avg. Rating</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="container">
+                                        <div class="input-group">
+                                            <input class="form-control" type="text" id="srchtxt" placeholder="Search Products" />
+                                            <input id="srchbtn" type="button" class="btn btn-primary" value="Search" />
+                                        </div>
+                                        
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- row -->
+                        @* genrate conditions for partial views according to buttons of grid and list *@
+
+                        @if (Model.Count == 0)
+                        {
+                            <div class="col">
+                                <div class="alert alert-danger" role="alert">
+                                    No products found.
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div id="plist" class=" d-none">
+                                <partial name="_ProductsList" />
+                            </div>
+                            <div id="pgrid" class="row g-4 row-cols-xl-3 row-cols-lg-3 row-cols-2 row-cols-md-2 mt-2">
+
+                                <partial name="_ProductsGrid" model="Model" />
+
+                            </div>
+                        }
+
+                        <div id="shopitems">
+                        </div>
+
+
+                        <!-- row -->
+                        <div class="row mt-8">
+                            <div class="col">
+                                <!-- nav -->
+                                <partial name="_Pagination" model="ViewBag.Pages" />
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+   
+    
+
+</body>
+
+@section ShopItemsScripts{
+    <script src="~/lib/nouislider/dist/nouislider.min.js"></script>
+    <script src="~/lib/wnumb/wNumb.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+
+    <script src="~/js/theme.min.js"></script>
+
+    <script src="~/lib/tiny-slider/dist/min/tiny-slider.js"></script>
+    <script src="~/js/vendors/tns-slider.js"></script>
+    <script src="~/js/vendors/zoom.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script>
+
+        function grid() {
+            const listElement = document.getElementById('plist');
+            const gridElement = document.getElementById('pgrid');
+            const searchResultsElement = document.getElementById('shopitems');
+            listElement.classList.add('d-none');
+            gridElement.classList.remove('d-none');
+            searchResultsElement.classList.add('d-none');
+        }
+
+        function list() {
+            const listElement = document.getElementById('plist');
+            const gridElement = document.getElementById('pgrid');
+            const searchResultsElement = document.getElementById('shopitems');
+            listElement.classList.remove('d-none');
+            gridElement.classList.add('d-none');
+            searchResultsElement.classList.add('d-none');
+        }
+
+        $(document).ready(function () {
+            $('#srchbtn').click(function () {
+                var search = $('#srchtxt').val();
+                console.log("successful");
+                $.get('/Home/Load', { x: search }, function (result) {
+                    $('#plist').addClass('d-none');
+                    $('#pgrid').addClass('d-none');
+                    $('#shopitems').removeClass('d-none');
+                    $('#shopitems').html(result).fadeIn('slow');
+                });
+            });
+        });
+
+    </script>
+}
+
+
+
+

@@ -1,0 +1,122 @@
+﻿@page
+@model RegisterModel
+
+
+    @{
+        Layout = null;
+    }
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta content="Codescandy" name="author">
+        <title>SignUp</title>
+        <!-- Favicon icon-->
+        <link rel="shortcut icon" type="image/x-icon" href="~/images/favicon/favicon.ico">
+
+
+        <!-- Libs CSS -->
+        <link href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+        <link href="~/lib/feather-webfont/dist/feather-icons.css" rel="stylesheet">
+        <link href="~/lib/simplebar/dist/simplebar.min.css" rel="stylesheet">
+
+        <link rel="stylesheet" href="~/css/theme.min.css">
+
+    </head>
+
+    <body>
+        <main>
+            <!-- section -->
+
+            <section class="my-lg-14 my-8">
+                <!-- container -->
+                <div class="container rounded">
+                    <!-- row -->
+                    <div class="row justify-content-center align-items-center">
+                        <div class="col-12 col-md-6 col-lg-4 order-lg-1 order-2">
+                            <!-- img -->
+                            <img src="~/images/svg-graphics/signup-g.svg" alt="" class="img-fluid" />
+                        </div>
+                        <!-- col -->
+                        <div class="mt-2 mb-2 col-12 col-md-6 offset-lg-1 col-lg-4 order-lg-2 order-1 rounded bg-light-subtle">
+                            <div class="mb-lg-9 mb-5">
+                                <h1 class="mb-1 h2 fw-bold text-center">Register</h1>
+                                <p class="text-center">Welcome to Shopping! Enter your details to Register.</p>
+                            </div>
+                            <!-- form -->
+                        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="row g-3">
+                                    <!-- col -->
+                                    @* <div class="form-group">
+                                        <!-- input -->
+                                        <label asp-for="Input.Name" for="formSignupname" class="control-label form-label">Name</label>
+                                        <input asp-for="Input.Name" type="text" class="form-control" id="formSignupname" placeholder="Name" required />
+                                        <div class="invalid-feedback">Please enter first name.</div>
+                                        <span asp-validation-for="Input.Name" class="text-danger"></span>
+                                    </div> *@
+                                    <div class="form-group">
+                                        <!-- input -->
+                                        <label asp-for="Input.Email" for="formSignupEmail" class="control-label form-label">Email address</label>
+                                        <input asp-for="Input.Email" type="email" class="form-control" id="formSignupEmail" placeholder="Email" required />
+                                        <div class="invalid-feedback">Please enter email.</div>
+                                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="password-field position-relative">
+                                            <label asp-for="Input.Password" for="formSignupPassword" class="control-label form-label">Password</label>
+                                            <div class="password-field position-relative">
+                                                <input asp-for="Input.Password" type="password" class="form-control fakePassword" id="formSignupPassword" placeholder="*****" required />
+                                                <span><i class="bi bi-eye-slash passwordToggler"></i></span>
+                                                <div class="invalid-feedback">Please enter password.</div>
+                                                <span asp-validation-for="Input.Password" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="password-field position-relative">
+                                            <label asp-for="Input.ConfirmPassword" for="formSignupPassword" class="control-label form-label">Confirm Password</label>
+                                            <div class="password-field position-relative">
+                                                <input asp-for="Input.ConfirmPassword" type="password" class="form-control fakePassword" id="formSignupPassword" placeholder="*****" required />
+                                                <span><i class="bi bi-eye-slash passwordToggler"></i></span>
+                                                <div class="invalid-feedback">Please enter password.</div>
+                                                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- btn -->
+                                    <div class="col-12 d-grid"><button type="submit" class="btn btn-primary">Register</button></div>
+
+                                    <!-- text -->
+                                    <p>
+                                        <small>
+                                            By continuing, you agree to our
+                                            <a href="#!">Terms of Service</a>
+                                            &
+                                            <a href="#!">Privacy Policy</a>
+                                        </small>
+                                    </p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- <script src="~/lib/jquery/dist/jquery.min.js"></script> -->
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+
+        <!-- Theme JS -->
+        <script src="~/js/theme.min.js"></script>
+
+        <script src="~/js/vendors/password.js"></script>
+
+        <script src="~/js/vendors/validation.js"></script>
+    </body>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

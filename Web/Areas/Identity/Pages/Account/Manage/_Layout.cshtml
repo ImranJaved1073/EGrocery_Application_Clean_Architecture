@@ -1,0 +1,41 @@
+﻿@{
+    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout != null)
+    {
+        Layout = parentLayout.ToString();
+    }
+    else
+    {
+        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+    }
+}
+
+<div class="container my-5">
+    <h1 class="mb-4 text-center font-monospace">MANAGE YOUR ACCOUNT</h1>
+    <div>
+        <h2 class="mb-3 text-center">Change your account settings</h2>
+        <hr />
+        <div class="row">
+            <div class="col-md-4 col-lg-3">
+                <div class="p-3 border rounded shadow-sm bg-light">
+                    <partial name="_ManageNav" />
+                </div>
+            </div>
+            <div class="col-md-8 col-lg-9">
+                <div class="p-4 border rounded shadow-sm bg-white">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+    <script src="~/js/theme.min.js"></script>
+}
+

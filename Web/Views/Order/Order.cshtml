@@ -1,0 +1,99 @@
+﻿@model List<Domain.Orders>
+@{
+    ViewData["Title"] = "My Orders";
+    var statusOptions = ViewBag.StatusOptions as List<string>;
+    var shippedDateOptions = ViewBag.ShippedDateOptions as List<DateTime>;
+}
+
+<style>
+    .accordion-container {
+        max-width: 600px;
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .accordion-item {
+        border-bottom: 1px solid #ddd;
+    }
+
+        .accordion-item:last-child {
+            border-bottom: none;
+        }
+
+    .accordion-button {
+        background-color: #f8f9fa;
+        border: none;
+    }
+
+        .accordion-button:not(.collapsed) {
+            background-color: #e2e6ea;
+            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.125);
+        }
+
+    .accordion-body {
+        background-color: #fff;
+    }
+</style>
+
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col">
+            <form method="get" class="d-flex">
+                <select name="statusFilter" class="form-select me-2">
+                    <option value="">All Statuses</option>
+                    @foreach (var status in statusOptions)
+                    {
+                        <option value="@status">@status</option>
+                    }
+                </select>
+                <input type="date" name="startDate" class="form-control me-2" placeholder="Start Date">
+                <input type="date" name="endDate" class="form-control me-2" placeholder="End Date">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="accordion-container accordion accordion-flush" id="accordionFlushExample">
+        @foreach (var order in Model)
+        {
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse-@order.Id" aria-expanded="false" aria-controls="flush-collapse-@order.Id">
+                        Order No: @order.OrderNum
+                    </button>
+                </h2>
+                <div id="flush-collapse-@order.Id" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                    <div class="accordion-body">
+                        <div class="row mb-3 bg-light py-2 d-flex justify-content-center align-items-center">
+                            <div class="col-4 text-center">
+                                <h6 class="text-muted">Shipped date:</h6>
+                                <p class="fs-sm fw-bold"><time datetime="@order.CheckOut.OrderDeliveryDate.ToString("yyyy-MM-dd")">@order.CheckOut.OrderDeliveryDate.ToString("dd MMM, yyyy")</time></p>
+                            </div>
+                            <div class="col-4 text-center">
+                                <h6 class="text-muted">Status:</h6>
+                                <p class="fs-sm fw-bold">@order.Status</p>
+                            </div>
+                            <div class="col-4 text-center">
+                                <h6 class="text-muted">Order Amount:</h6>
+                                <p class="fs-sm fw-bold">@order.TotalBill.ToString("C")</p>
+                            </div>
+                        </div>
+                        <a asp-action="OrderDetails" asp-controller="Order" asp-route-id="@order.Id" class="btn btn-primary w-100" style="border-radius: 0;">Order Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/lib/flatpickr/dist/flatpickr.min.js"></script>
+    <!-- <script src="~/libs/jquery/dist/jquery.min.js"></script> -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+    <script src="~/js/theme.min.js"></script>
+}

@@ -1,8 +1,218 @@
-﻿@{
+@model List<Domain.Category>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<body>
+
+    <main>
+        <!-- section -->
+        <section class="conatiner-fluid mt-8">
+            <div class="container">
+                <div class="hero-slider">
+                    <div style="background: url(/images/slider/hero-img-slider-1.jpg) no-repeat; background-size: cover; border-radius: 0.5rem; background-position: center">
+                        <div class="ps-lg-12 py-lg-16 col-xxl-5 col-lg-7 col-md-8 py-14 px-8 text-xs-center">
+                            <h1 class="text-white display-5 fw-bold mt-4">Grocery</h1>
+                            <p class="lead text-white">Introduced a new model for online grocery shopping and convenient home delivery at any time.</p>
+                            <a href="#!" class="btn btn-dark mt-3">
+                                Shop Now
+                                <i class="feather-icon icon-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div style="background: url(/images/slider/hero-img-slider-2.jpg) no-repeat; background-size: cover; border-radius: 0.5rem; background-position: center">
+                        <div class="ps-lg-12 py-lg-16 col-xxl-5 col-lg-7 col-md-8 py-14 px-8 text-xs-center">
+                            <h1 class="text-dark display-5 fw-bold mt-4">
+                                Opening Sale
+                                <br /> Discount up to
+                                <span class="text-primary display-6">50%</span>
+                            </h1>
+                            <p class="lead">Snack on late-night munchies of delicious nuts & you’re guaranteed happiness before you doze!</p>
+                            <a href="#!" class="btn btn-dark mt-3">
+                                Shop Now
+                                <i class="feather-icon icon-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div style="background: url(/images/slider/hero-img-slider-3.jpg) no-repeat; background-size: cover; border-radius: 0.5rem; background-position: center">
+                        <div class="ps-lg-12 py-lg-16 col-xxl-5 col-lg-7 col-md-8 py-14 px-8 text-xs-center">
+                            <h1 class="text-dark display-5 fw-bold mt-4">Midnight Munch Combo</h1>
+                            <p class="lead">Snack on late-night munchies of delicious nuts & you’re guaranteed happiness before you doze!</p>
+                            <a href="#!" class="btn btn-dark mt-3">
+                                Shop Now
+                                <i class="feather-icon icon-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- section category -->
+        <section class="my-lg-14 my-8">
+            <div class="container">
+                <div class="row align-items-center mb-6">
+                    <div class="col-10">
+                        <div>
+                            <!-- heading    -->
+                            <h3 class="align-items-center d-flex mb-0 h4">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers text-primary">
+                                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                                    <polyline points="2 17 12 22 22 17"></polyline>
+                                    <polyline points="2 12 12 17 22 12"></polyline>
+                                </svg>
+                                <span class="ms-3">Shop by Categories</span>
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="slider-arrow slider-8-columns-arrow" id="slider-8-columns-arrows"></div>
+                    </div>
+                </div>
+                <div class="row g-6">
+                    <div class="col-12">
+                        <div class="position-relative">
+                            <div class="slider-8-columns" id="slider-8-columns">
+
+                                <!-- item -->
+                                @foreach (var category in Model)
+                                {
+                                    <div class="item">
+                                        <a asp-action="ShopItems" asp-route-id="@category.Id" class="text-decoration-none text-inherit">
+                                            <div class="card mb-3 card-lift">
+                                                <div class="card-body text-center py-6">
+                                                    <div class="my-5">
+                                                        <img src="~/@category.ImgPath" alt="@category.CategoryName" width="56" height="56" />
+                                                    </div>
+                                                    <div class="text-truncate">@category.CategoryName</div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- section -->
+        <section class="mb-lg-14 mb-8">
+            <div class="container">
+                <!-- row -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-6 d-xl-flex justify-content-between align-items-center">
+                            <!-- heading -->
+                            <div class="mb-5 mb-xl-0">
+                                <h3 class="mb-0">New Products</h3>
+                                <p class="mb-0">New products with updated stocks</p>
+                            </div>
+                            <div>
+                                <!-- nav -->
+                                <nav>
+                                    <ul class="nav nav-pills nav-scroll border-bottom-0 gap-1" id="nav-tab" role="tablist">
+                                        <!-- nav item -->
+                                        <li class="nav-item">
+                                            <!-- nav link -->
+                                            <a href="#" class="nav-link active" id="nav-fruitsandveg-tab" data-bs-toggle="tab" data-bs-target="#nav-fruitsandveg" role="tab" aria-controls="nav-fruitsandveg" aria-selected="true">
+                                                Fruits & Vegetables
+                                            </a>
+                                        </li>
+                                        <!-- nav item -->
+
+                                        <li class="nav-item">
+                                            <!-- nav link -->
+                                            <a href="#" class="nav-link" id="nav-snackMunchies-tab" data-bs-toggle="tab" data-bs-target="#nav-snackMunchies" role="tab" aria-controls="nav-snackMunchies" aria-selected="false">
+                                                Snack & Munchies
+                                            </a>
+                                        </li>
+                                        <!-- nav item -->
+                                        <li class="nav-item">
+                                            <!-- nav link -->
+                                            <a href="#" class="nav-link" id="nav-bakery-tab" data-bs-toggle="tab" data-bs-target="#nav-bakery" role="tab" aria-controls="nav-bakery" aria-selected="false">
+                                                Bakery & Biscuits
+                                            </a>
+                                        </li>
+                                        <!-- nav item -->
+                                        <li class="nav-item">
+                                            <!-- nav link -->
+                                            <a href="#" class="nav-link" id="nav-tea-tab" data-bs-toggle="tab" data-bs-target="#nav-tea" role="tab" aria-controls="nav-tea" aria-selected="false">
+                                                Tea, Coffee & Drinks
+                                            </a>
+                                        </li>
+                                        <!-- nav item -->
+                                        <li class="nav-item">
+                                            <!-- nav link -->
+                                            <a href="#" class="nav-link" id="nav-drinks-tab" data-bs-toggle="tab" data-bs-target="#nav-drinks" role="tab" aria-controls="nav-drinks" aria-selected="false">
+                                                Cold Drinks & Juices
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- row -->
+                <div class="row">
+                    <div class="col-12">
+                        <!-- tab -->
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="nav-fruitsandveg" role="tabpanel" aria-labelledby="nav-fruitsandveg-tab" tabindex="0">
+                                <!-- row -->
+                                <div class="row row-cols-2 row-cols-xl-5 row-cols-md-3 g-4">
+                                    <partial name="_ProductsGrid" model="ViewBag.Products" />
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="nav-snackMunchies" role="tabpanel" aria-labelledby="nav-snackMunchies-tab" tabindex="0">
+                                <div class="row row-cols-2 row-cols-xl-5 row-cols-md-3 g-4">
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="nav-bakery" role="tabpanel" aria-labelledby="nav-bakery-tab" tabindex="0">
+                                <div class="row row-cols-2 row-cols-xl-5 row-cols-md-3 g-4">
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="nav-tea" role="tabpanel" aria-labelledby="nav-tea-tab" tabindex="0">
+                                <div class="row row-cols-2 row-cols-xl-5 row-cols-md-3 g-4">
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="nav-drinks" role="tabpanel" aria-labelledby="nav-drinks-tab" tabindex="0">
+                                <div class="row row-cols-2 row-cols-xl-5 row-cols-md-3 g-4">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- button -->
+        <div class="container mb-10">
+            <div class="row">
+                <div class="col-12 d-grid">
+                    <a href="#!" class="btn btn-soft-warning btn-lg ls-xl text-uppercase rounded-pill">Save an extra 15% on Authorship order</a>
+                </div>
+            </div>
+        </div>
+        <!-- section -->
+        <partial name="_About" />
+    </main>
+    
+</body>
+
+@section Scripts {
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+    <script src="~/js/theme.min.js"></script>
+
+    <script src="~/js/vendors/jquery.min.js"></script>
+    <script src="~/lib/slick-carousel/slick/slick.min.js"></script>
+    <script src="~/js/vendors/slick-slider.js"></script>
+    <script src="~/lib/tiny-slider/dist/min/tiny-slider.js"></script>
+    <script src="~/js/vendors/tns-slider.js"></script>
+    <script src="~/js/vendors/zoom.js"></script>
+
+    <script src="~/lib/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="~/js/vendors/chart.js"></script>
+    <script src="~/js/vendors/validation.js"></script>
+}

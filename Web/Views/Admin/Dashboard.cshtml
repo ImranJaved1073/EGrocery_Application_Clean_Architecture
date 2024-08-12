@@ -1,0 +1,52 @@
+﻿@{
+    Layout = "_AdminLayout";
+}
+
+<div class="main-content container-fluid py-4">
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="mb-5">
+        <h2 class="mb-4">Dashboard</h2>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary mb-3 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Sales</h5>
+                        <p class="card-text display-6">Rs.@ViewBag.TotalSales</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success mb-3 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Orders</h5>
+                        <p class="card-text display-6">@ViewBag.TotalOrders</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger mb-3 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Categories</h5>
+                        <p class="card-text display-6">@ViewBag.TotalCategories</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning mb-3 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Products</h5>
+                        <p class="card-text display-6">@ViewBag.TotalProducts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+@section Scripts {
+    <script src="~/lib/flatpickr/dist/flatpickr.min.js"></script>
+    <!-- <script src="~//libs/jquery/dist/jquery.min.js"></script> -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+    <script src="~/js/theme.min.js"></script>
+}

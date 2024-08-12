@@ -1,0 +1,154 @@
+﻿@model Domain.Orders
+
+<div class="container-fluid my-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-9 col-lg-8">
+
+            <!-- Order -->
+            <div class="card card-lg mb-5 border">
+                <div class="card-body pb-0">
+
+                    <!-- Info -->
+                    <div class="card card-sm mb-4">
+                        <div class="card-body bg-light">
+                            <div class="row">
+                                <div class="col-6 col-lg-3">
+                                    <!-- Heading -->
+                                    <h6 class="heading-xxxs text-muted">Order No:</h6>
+                                    <!-- Text -->
+                                    <p class="mb-lg-0 fs-sm fw-bold">
+                                        @Model.OrderNum
+                                    </p>
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <!-- Heading -->
+                                    <h6 class="heading-xxxs text-muted">Order Date:</h6>
+                                    <!-- Text -->
+                                    <p class="mb-lg-0 fs-sm fw-bold">
+                                        <time datetime="@Model.OrderDate.ToString("yyyy-MM-dd")">
+                                            @Model.OrderDate.ToString("dd MMM, yyyy")
+                                        </time>
+                                    </p>
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <!-- Heading -->
+                                    <h6 class="heading-xxxs text-muted">Status:</h6>
+                                    <!-- Text -->
+                                    <p class="mb-0 fs-sm fw-bold">
+                                        @Model.Status
+                                    </p>
+                                </div>
+                                <div class="col-6 col-lg-3">
+                                    <!-- Heading -->
+                                    <h6 class="heading-xxxs text-muted">Total Bill:</h6>
+                                    <!-- Text -->
+                                    <p class="mb-0 fs-sm fw-bold">
+                                        @Model.TotalBill.ToString("C")
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card-footer">
+                    <!-- Heading -->
+                    <h6 class="mb-7">Order Items (@Model.OrderDetails.Count)</h6>
+                    <!-- Divider -->
+                    <hr class="my-5">
+                    <!-- List group -->
+                    <ul class="list-group list-group-lg list-group-flush-y list-group-flush-x">
+                        @foreach (var item in Model.OrderDetails)
+                        {
+                            <li class="list-group-item">
+                                <div class="row align-items-center">
+                                    <div class="col-4 col-md-3 col-xl-2">
+                                        <!-- Image -->
+                                        <a href="product.html"><img src="~/@item.Product?.ImagePath" alt="..." class="img-fluid"></a>
+                                    </div>
+                                    <div class="col">
+                                        <!-- Title -->
+                                        <p class="mb-4 fs-sm fw-bold">
+                                            <a class="text-body" href="product.html">@item.Product?.Name</a> <br>
+                                            <span class="text-muted">@item.Price.ToString("C")</span>
+                                        </p>
+                                        <!-- Text -->
+                                        <div class="fs-sm text-muted">
+                                            Weight: @item.Product?.Weight@(item.Product.UnitID) <br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Total -->
+            <!-- Total -->
+            <div class="card card-lg mb-5 border">
+                <div class="card-body">
+                    <!-- Heading -->
+                    <h6 class="mb-7">Order Total</h6>
+                    <!-- List group -->
+                    <ul class="list-group list-group-sm list-group-flush-y list-group-flush-x">
+                        <li class="list-group-item d-flex">
+                            <span>Subtotal</span>
+                            <span class="ms-auto">@Model.TotalBill</span>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <span>Tax</span>
+                            <span class="ms-auto">Rs.0.00</span>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <span>Shipping</span>
+                            <span class="ms-auto">Rs.300.0</span>
+                        </li>
+                        <li class="list-group-item d-flex fs-lg fw-bold">
+                            <span>Total</span>
+                            <span class="ms-auto">Rs.@Model.TotalBill</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="card card-lg border">
+                <div class="card-body">
+                    <!-- Heading -->
+                    <h6 class="mb-7">Billing & Shipping Details</h6>
+                    <!-- Content -->
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <!-- Heading -->
+                            <p class="fw-bold">Billing Address:</p>
+                            <p class="text-gray-500">@Model.CheckOut?.Address</p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <!-- Heading -->
+                            <p class="fw-bold">Shipping Address:</p>
+                            <p class="text-gray-500">@Model.CheckOut?.Address</p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <!-- Heading -->
+                            <p class="fw-bold">Shipping Method:</p>
+                            <p class="text-gray-500">@Model.CheckOut?.PaymentMethod</p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <!-- Heading -->
+                            <p class="fw-bold">Payment Method:</p>
+                            <p class="text-gray-500">@Model.CheckOut?.PaymentMethod</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+    <script src="~/js/theme.min.js"></script>
+}

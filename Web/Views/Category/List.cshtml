@@ -1,0 +1,195 @@
+﻿@model List<Domain.Category>
+
+@{
+    ViewData["Title"] = "List";
+    Layout = "_AdminLayout";
+    int currentPage = ViewBag.CurrentPage;
+    int pageSize = ViewBag.PageSize;
+    int startIndex = (currentPage - 1) * pageSize + 1;
+}
+
+<link href="~lib/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="~lib/feather-webfont/dist/feather-icons.css" rel="stylesheet">
+<style>
+    .card {
+        transition: all 0.3s ease-in-out;
+    }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-primary {
+        transition: all 0.3s ease-in-out;
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+    .btn-outline-warning:hover,
+    .btn-outline-primary:hover,
+    .btn-outline-danger:hover {
+        transform: scale(1.05);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .pagination .page-link {
+        transition: all 0.3s ease-in-out;
+    }
+
+        .pagination .page-link:hover {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+</style>
+
+<body>
+
+    <!-- main -->
+
+    <main class="container">
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <!-- page header -->
+                <div class="d-md-flex justify-content-between align-items-center">
+                    <div>
+                        <h2>Products</h2>
+                        <!-- breacrumb -->
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="#" class="text-inherit">Dashboard</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Products</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <!-- button -->
+                    <div>
+                        <a href="@Url.Action("Create", "Category")" class="btn btn-primary">Add Category</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- row -->
+        <div class="row">
+            <div class="col-xl-12 col-12 mb-5">
+                <!-- card -->
+                <div class="card h-100 card-lg">
+                    <div class="px-6 py-6 bg-tertiary-subtle border rounded-top">
+                        <div class="row justify-content-between">
+                            <!-- form -->
+                            <div class="col-lg-4 col-md-6 col-12 mb-2 mb-lg-0">
+                                @using (Html.BeginForm("List", "Category", FormMethod.Get, new { @class = "d-flex" }))
+                                {
+                                    <div class="input-group">
+                                        @Html.TextBox("search", null, new { @class = "form-control", placeholder = "Search Category" })
+                                        <button type="submit" class="btn btn-primary">Search</button>
+                                    </div>
+                                }
+
+
+                            </div>
+                            <!-- select option -->
+                            <div class="col-lg-2 col-md-4 col-12">
+                                <select class="form-select">
+                                    <option selected>Status</option>
+                                    <option value="1">Active</option>
+                                    <option value="2">Deactive</option>
+                                    <option value="3">Draft</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- card body -->
+                    <div class="card-body p-0">
+                        <!-- table -->
+                        <div class="table-responsive">
+                            <table class="table table-centered table-hover table-striped mb-0 table-with-checkbox">
+                                <thead class="border border-success bg-success-subtle">
+                                    <tr>
+                                        <th class="text-center">Sr#</th>
+                                        <th class="text-center">Image</th>
+                                        <th class="text-center">Category Name</th>
+                                        <th class="text-center">Parent Category Name</th>
+                                        <th class="text-center">Products</th>
+                                        <th class="text-center">Create at</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Count() == 0)
+                                    {
+                                        <tr>
+                                            <td colspan="8" class="text-center">No Category found!!</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        int i = startIndex;
+                                        foreach (var category in Model)
+                                        {
+                                            <tr class="text-center">
+                                                <td>@i</td>
+                                                @{
+                                                    i += 1;
+                                                }
+                                                <td>
+                                                    <img src="~/@category.ImgPath" alt="" class="icon-shape icon-md align-center" />
+                                                </td>
+                                                <td><a href="#" class="text-reset">@category.CategoryName</a></td>
+                                                @if (category.ParentCategoryID == null)
+                                                {
+                                                    <td>NIL</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@category.ParentCategoryName</td>
+                                                }
+                                                <td>@category.ProductCount</td>
+
+                                                <td>@category.CreatedOn.ToString("dd MMM yyyy")</td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <a asp-action="Create" asp-route-id="@category.Id" class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-pencil-square"></i> Edit
+                                                        </a>
+                                                        <a asp-action="Delete" asp-route-id="@category.Id" class="btn btn-sm btn-outline-danger">
+                                                            <i class="bi bi-trash"></i> Delete
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <partial name="_Pagination" model="ViewBag.Pager" />
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+</body>
+
+@section Scripts {
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+    <script src="~/js/theme.min.js"></script>
+}

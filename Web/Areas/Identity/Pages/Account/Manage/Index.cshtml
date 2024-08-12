@@ -1,0 +1,120 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<div class="container my-5">
+    <h3 class="mb-4">@ViewData["Title"]</h3>
+    <partial name="_StatusMessage" for="StatusMessage" />
+    <div class="row">
+        <div class="col-lg-8">
+            <form id="profile-form" method="post" class="border p-4 shadow-sm rounded">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                <!-- Username -->
+                <div class="form-floating mb-3">
+                    <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
+                    <label asp-for="Username" class="form-label"></label>
+                </div>
+                <!-- Phone Number -->
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
+                    <label asp-for="Input.PhoneNumber" class="form-label"></label>
+                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                </div>
+                <!-- Address -->
+                <div class="form-floating mb-3">
+                    <textarea  class="form-control" placeholder="Please enter your address." rows="3"></textarea>
+                    <label  class="form-label"></label>
+                </div>
+                <!-- Permanent Address -->
+                <div class="form-floating mb-3">
+                    <textarea  class="form-control" placeholder="Please enter your permanent address." rows="3"></textarea>
+                    <label  class="form-label"></label>
+                </div>
+                <!-- Profile Image -->
+                <div class="form-group mb-3">
+                    <label  class="form-label">Profile Image</label>
+                    <input  type="file" class="form-control-file" />
+                    @* @if (!string.IsNullOrEmpty(PreviousProfileImagePath))
+                    {
+                        <img src="@Url.Content(PreviousProfileImagePath)" class="mt-2 img-thumbnail" style="max-width: 200px;" />
+                    } *@
+                    <img src="~/images/categories/56627d0e-d810-4140-b500-f28f765c5294_icons8-beverages-58.png" alt="dsd" class="mt-2 img-thumbnail" style="max-width: 200px;" />
+                </div>
+                <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+@*@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<style>
+    .profile-image-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+        .profile-image-container img {
+            max-width: 200px;
+            border-radius: 50%;
+            border: 2px solid #fff; /* Add a white border for better visibility */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow effect */
+        }
+</style>
+
+<div class="container my-5">
+    <h3 class="mb-4">@ViewData["Title"]</h3>
+    <div class="row">
+        <div class="col-lg-12">
+            <form id="profile-form" method="post" class="border p-4 shadow-sm rounded">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                <!-- Display Previous Profile Image -->
+                <div class="profile-image-container">
+                    <img src="~/images/categories/56627d0e-d810-4140-b500-f28f765c5294_icons8-beverages-58.png" alt="Previous Profile Image" class="mt-2 img-thumbnail" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Username" class="form-label fw-bold">Username</label>
+                    <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Input.PhoneNumber" class="form-label fw-bold">Phone Number</label>
+                    <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
+                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label fw-bold">Address</label>
+                    <textarea class="form-control" placeholder="Please enter your address." rows="3"></textarea>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label fw-bold">Permanent Address</label>
+                    <textarea class="form-control" placeholder="Please enter your permanent address." rows="3"></textarea>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label fw-bold">Profile Image</label>
+                    <input type="file" class="form-control-file" />
+                </div>
+                <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+*@

@@ -1,0 +1,196 @@
+﻿@model Domain.Cart
+
+@{
+    ViewData["Title"] = "Shop Cart";
+}
+
+
+<main>
+    @if (TempData != null && TempData["Message"] != null)
+    {
+        Layout = null;
+        <style>
+            body{
+                background-color:lightgrey;
+            }
+            .btn-rounded {
+                border-radius: 25px;
+                padding: 10px 20px;
+                transition: background-color 0.3s ease;
+            }
+
+                .btn-rounded:hover {
+                    background-color: #2E8447;
+                    color: #ffffff;
+                    font-weight:bold;
+                }
+
+                .btn-rounded i {
+                    margin-right: 5px;
+                }
+
+            .center-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 80vh;
+                text-align: center;
+            }
+
+                .center-container img {
+                    max-width: 150px;
+                }
+        </style>
+        <link href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="~/css/theme.min.css">
+        <div class="container mt-1 center-container">
+            <img src="~/images/—Pngtree—shopping cart_8621200.png" class="img-fluid" alt="Empty Cart" />
+            <h5 class="fw-bold">Your cart is empty</h5>
+            <p>You have not added anything to cart. Explore products and shop now.</p>
+            <a href="@Url.Action("ShopItems", "Home")" class="btn btn-success btn-rounded mt-1">
+                <i class="bi bi-shop"></i> Shop Now
+            </a>
+        </div>
+    }
+    else
+    {
+        <section class="mb-lg-14 mb-8 mt-8">
+            <div class="container">
+                <!-- row -->
+                <div class="row">
+                    <div class="col-12">
+                        <!-- card -->
+                        <div class="card py-1 border-0 mb-8 shadow-sm rounded">
+                            <div>
+                                <h1 class="fw-bold bi-cart text-center">Shopping Cart</h1>
+                                @* <p class="mb-0">Shopping in 382480</p> *@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- row -->
+                <div class="row">
+                    <div class="col-lg-8 col-md-7">
+                        <div class="py-3">
+
+                            <ul class="list-group list-group-flush">
+                                <!-- list group -->
+                                @foreach (var item in Model.Items)
+                                {
+                                    <form asp-controller="Cart" asp-action="UpdateCart" asp-route-id="@item.Id" method="post">
+                                    <li class="list-group-item py-3 border-top">
+                                        <!-- row -->
+                                        <div class="row align-items-center">
+                                            <div class="col-12  col-lg-7 d-flex align-items-center">
+                                                <img src="~/@item.ImagePath" alt="Product Image" class="img-fluid rounded" style="max-width: 100px; max-height: 100px;" />
+                                                <div class="ms-3">
+                                                    <!-- title -->
+                                                    <a href="@Url.Action("Details", "Product", new { id = item.Id })" class="text-inherit">
+                                                        <h6 class="mb-0">@item.Name</h6>
+                                                    </a>
+                                                    <small class="text-muted">@item.Weight @item.Unit</small>
+                                                    <!-- text -->
+                                                    <div class="mt-2 small lh-1">
+                                                        <div class="d-flex gap-2">
+                                                            <button asp-controller="Cart" asp-action="RemoveFromCart" asp-route-id="@item.Id" formmethod="post" type="submit" class="btn p-0 text-danger">
+                                                                <i class="bi bi-trash"></i> Remove
+                                                            </button>
+
+                                                            <button type="submit" class="btn p-0 text-success">
+                                                                <i class="bi bi-pencil"></i> Update
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- input group -->
+                                            <div class="col-6 col-md-4 col-lg-3 mt-md-4">
+                                                <!-- input -->
+                                                <div class="input-group input-spinner">
+                                                    <button type="button" class="button-minus btn btn-sm" data-field="quantity">-</button>
+                                                    <input type="number" step="1" max="10" value="@item.Quantity" name="quantity" class="quantity-field form-control-sm form-input" />
+                                                    <button type="button" class="button-plus btn btn-sm" data-field="quantity">+</button>
+                                                </div>
+                                            </div>
+                                            <!-- price -->
+                                            <div class="col-6 col-md-2 col-lg-2 text-end">
+                                                <span class="fw-bold">@item.Price.ToString("C")</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    </form>
+                                }
+                            </ul>
+
+                            <!-- btn -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a asp-action="ShopItems" asp-controller="Home" class="btn btn-primary">Continue Shopping</a>
+                                <button type="submit" class="btn btn-dark">Update Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    @if (Model.Items.Count > 0)
+                    {
+                        <!-- sidebar -->
+                        <div class="col-12 col-lg-4 col-md-5">
+                            <!-- card -->
+                            <div class="mb-5 card shadow-sm rounded">
+                                <div class="card-body p-4">
+                                    <!-- heading -->
+                                    <h2 class="h5 mb-4">Summary</h2>
+                                    <div class="card mb-2">
+                                        <!-- list group -->
+                                        <ul class="list-group list-group-flush">
+                                            <!-- list group item -->
+                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                <div class="me-auto">
+                                                    <div>Net Total</div>
+                                                </div>
+                                                <span>Rs.@Model.TotalPrice</span>
+                                            </li>
+
+                                            <!-- list group item -->
+                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                <div class="me-auto">
+                                                    <div>Service Fee</div>
+                                                </div>
+                                                <span>Rs.0.00</span>
+                                            </li>
+                                            <!-- list group item -->
+                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                <div class="me-auto">
+                                                    <div class="fw-bold">Subtotal</div>
+                                                </div>
+                                                @{
+                                                    decimal subtotal = Math.Round(Model.TotalPrice - Model.TotalDiscount, 0);
+                                                }
+                                                <span class="fw-bold">Rs.@subtotal</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="d-grid mb-1 mt-4">
+                                        <!-- btn -->
+                                        <a asp-action="CheckOut" asp-controller="Cart" class="btn btn-primary btn-lg d-flex justify-content-between align-items-center" type="submit">
+                                            Proceed to Checkout
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </section>
+    }
+</main>
+
+@section Scripts {
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+    <script src="~/js/theme.min.js"></script>
+}

@@ -1,0 +1,149 @@
+﻿@model Domain.CheckOut
+
+<main>
+    <!-- section-->
+    <div class="mt-4">
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- col -->
+                <div class="col-12">
+                    <!-- breadcrumb -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="#!">Home</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Shop</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Shop Checkout</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- section -->
+    <section class="mb-8 mt-8">
+        <div class="container">
+            <!-- row -->
+            <form asp-action="AddOrder" asp-controller="Order" method="post">
+               <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row gx-5">
+                    <div class="col-lg-7">
+                        <!-- checkout form -->
+
+                        <div class="card py-1 border-0 mb-8 shadow-sm rounded">
+                            <div class="card-body">
+                                <h5 class="fw-bold">Checkout Form</h5>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="name">Full Name</label>
+                                            <input type="text" class="form-control" id="name" placeholder="Enter your full name">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="email">Email Address</label>
+                                            <input type="email" class="form-control" id="email" placeholder="Enter your email address">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label asp-for="Address" for="address">Address</label>
+                                            <textarea asp-for="Address" class="form-control" id="address" placeholder="Enter your address" required></textarea>
+                                            <span asp-validation-for="Address" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="phone">Phone Number</label>
+                                            <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label asp-for="City" for="city">City</label>
+                                            <input asp-for="City" type="text" class="form-control" id="city" placeholder="Enter your city">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label asp-for="State" for="state">State</label>
+                                            <input asp-for="State" type="text" class="form-control" id="state" placeholder="Enter your state">
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label asp-for="ZipCode" for="zip">Zip Code</label>
+                                            <input asp-for="ZipCode" type="text" class="form-control" id="zip" placeholder="Enter your zip code" required>
+                                            <span asp-validation-for="ZipCode" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="card shadow-sm">
+                            <h5 class="px-6 py-4 bg-transparent mb-0">Order Details</h5>
+                            <ul class="list-group list-group-flush">
+                                <!-- list group item -->
+                                @foreach (var item in ViewBag.Cart.Items)
+                                {
+                                    <li class="list-group-item px-4 py-3">
+                                        <div class="row align-items-center">
+                                            <div class="col-2 col-md-2">
+                                                <img src="~/@item.ImagePath" alt="Ecommerce" class="img-fluid" />
+                                            </div>
+                                            <div class="col-5 col-md-5">
+                                                <h6 class="mb-0">@item.Name</h6>
+                                                <span><small class="text-muted">@item.Weight@item.Unit</small></span>
+                                            </div>
+                                            <div class="col-2 col-md-2 text-center text-muted">
+                                                <span>@item.Quantity</span>
+                                            </div>
+                                            <div class="col-3 text-lg-end text-start text-md-end col-md-3">
+                                                <span class="fw-bold">Rs.@item.Price</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                                <!-- list group item -->
+                                <li class="list-group-item px-4 py-3">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div>Item Subtotal</div>
+                                        <div class="fw-bold">Rs.@ViewBag.Cart.TotalPrice</div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>Service Fee</div>
+                                        <div class="fw-bold">Rs.0.00</div>
+                                    </div>
+                                </li>
+                                <!-- list group item -->
+                                <li class="list-group-item px-4 py-3">
+                                    <div class="d-flex align-items-center justify-content-between fw-bold">
+                                        <div>Subtotal</div>
+                                        <div>Rs.@ViewBag.Cart.TotalPrice</div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <button type="submit" class="btn btn-primary w-100" style="border-top-left-radius: 0;border-top-right-radius:0">Confirm Order</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+
+@section Scripts {
+    <script src="~/lib/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+    <script src="~/js/theme.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
+
+
+

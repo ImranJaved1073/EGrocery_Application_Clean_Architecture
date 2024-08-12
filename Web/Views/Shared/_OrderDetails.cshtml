@@ -1,0 +1,73 @@
+﻿@model Domain.Orders
+
+<div class="row">
+    <!-- Order Details -->
+    <div class="col-12 col-lg-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="mb-4">Invoice</h2>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Order Information</h5>
+                        <p><strong>Order Number:</strong> @Model.OrderNum</p>
+                        <p><strong>Order Date:</strong> @Model.OrderDate.ToString("yyyy-MM-dd")</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <h5>Customer Details</h5>
+                        <p><strong>Customer Name:</strong> @Model.User.UserName</p>
+                        <p><strong>Email:</strong> @Model.User.Email</p>
+                    </div>
+                </div>
+                <h5>Order Items</h5>
+                <div class="list-group mb-4">
+                    @foreach (var item in Model.OrderDetails)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="me-3">
+                                    <img src="~/@item.Product.ImagePath" alt="@item.Product.Name" width="50" height="50">
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">@item.Product.Name</h6>
+                                </div>
+                                <div>
+                                    <span class="badge bg-primary">x @item.Quantity</span>
+                                    <span class="badge bg-secondary">Rs.@item.Price</span>
+                                    <span class="badge bg-info ms-2">Rs.@(item.Price*item.Quantity)</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-6 ">
+                        <h5>Shipping Address</h5>
+                        <p>@Model.CheckOut.Address</p>
+                        <h5>Payment Method</h5>
+                        <p>@Model.CheckOut.PaymentMethod</p>
+                    </div>
+
+                    <div class="col-md-6 text-md-end">
+                        <h5>Total Amount</h5>
+                        <p>Rs.@Model.TotalBill</p>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <!-- Order Timeline -->
+    <div class="col-12 col-lg-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="mb-4">Order Timeline</h2>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Order Placed:</strong> @Model.OrderDate.ToString("yyyy-MM-dd")
+                    </li>
+                    <!-- Add more timeline events here if needed -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

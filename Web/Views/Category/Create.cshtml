@@ -1,0 +1,227 @@
+﻿@model Domain.Category
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .card {
+        transition: all 0.3s ease-in-out;
+    }
+
+        .card:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background-color: #f8f9fa;
+        }
+
+    .btn-primary {
+        transition: all 0.3s ease-in-out;
+        background-color: #088a08;
+        border-color: #088a08;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            background-color: #0aad0a;
+            border-color: #0aad0a;
+        }
+
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    }
+
+    .input-group:hover .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+
+        .input-group:hover .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+    #productSKU {
+        font-weight: bold;
+    }
+
+</style>
+
+
+<body>
+
+    <main class="main-wrapper">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="d-md-flex justify-content-between align-items-center">
+                        <div>
+                            @if (Model != null)
+                            {
+                                <h2>Edit Category</h2>
+                            }
+                            else
+                            {
+                                <h2>Add New Category</h2>
+                            }
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Category</a></li>
+                                    @if (Model != null)
+                                    {
+                                        <li class="breadcrumb-item active" aria-current="page">Edit Category</li>
+                                    }
+                                    else
+                                    {
+                                        <li class="breadcrumb-item active" aria-current="page">Add New Category</li>
+                                    }
+                                </ol>
+                            </nav>
+                        </div>
+                        <div>
+                            <a href="@Url.Action("List", "Category")" class="btn btn-light">Back to List</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form id="categoryForm" method="post" asp-action="@(Model == null ? "Create" : "Edit")">
+                @if (Model != null)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="card mb-4">
+
+                    <div class="card-body p-4">
+                        <h4 class="mb-4 h5">Category Information</h4>
+                        <div class="row">
+                            <!-- input -->
+                            <div class="col-lg-6 mb-3">
+                                <label asp-for="CategoryName" class="form-label">Category Name</label>
+                                <input asp-for="CategoryName" type="text" class="form-control" placeholder="Category Name" required>
+                                <span asp-validation-for="CategoryName" class="text-danger"></span>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <label asp-for="CreatedOn" class="form-label">Select Date</label>
+                                <input asp-for="CreatedOn" type="datetime-local" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                <span asp-validation-for="CreatedOn" class="text-danger"></span>
+                            </div>
+                            <div class="col-lg-12 mb-3">
+                                <label asp-for="ParentCategoryID" class="form-label">Parent Category</label>
+                                @if (ViewBag.Categories != null)
+                                {
+                                    <select asp-for="ParentCategoryID" class="form-control" asp-items="ViewBag.Categories">
+                                        <option value="ParentCategoryID">--Select Parent Category--</option>
+                                    </select>
+                                }
+                                else
+                                {
+                                    <select asp-for="ParentCategoryID" class="form-control">
+                                        <option value="">--Select Parent Category--</option>
+                                    </select>
+                                }
+                            </div>
+
+                            <div class="col-lg-12 mt-4">
+                                <label asp-for="CategoryDescription" class="mb-3 h5">Category Descriptions</label>
+                                <textarea asp-for="CategoryDescription" class="form-control" rows="6"></textarea>
+                            </div>
+
+                            <div class="col-lg-12 mt-4">
+                                <label asp-for="CategoryImg" class="mb-3 h5">Category Image</label>
+                                <input asp-for="CategoryImg" class="form-control form-control-lg" id="formFileLg" type="file">
+                                <span asp-validation-for="CategoryImg" class="text-danger"></span>
+                            </div>
+
+                            <!-- input -->
+                            <div class="d-grid mt-3">
+                                @if (Model != null)
+                                {
+                                    <button type="button" id="updateBtn" class="btn btn-primary">Update</button>
+                                }
+                                else
+                                {
+                                    <button type="button" id="createBtn" class="btn btn-primary">Create</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+
+    <!-- main -->
+    @*  <!-- Libs JS -->
+    <!-- <script src="~/libs/jquery/dist/jquery.min.js"></script> -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/simplebar/dist/simplebar.min.js"></script>
+
+    <!-- Theme JS -->
+    <script src="~/js/theme.min.js"></script>
+
+    <script src="~/lib/quill/dist/quill.min.js"></script>
+    <script src="~/js/vendors/editor.js"></script>
+    <script src="~/lib/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="~/js/vendors/dropzone.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script> *@
+
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#createBtn, #updateBtn').click(function () {
+                var formData = new FormData();
+                var fileInput = $('#formFileLg')[0];
+                var otherData = $('#categoryForm').serializeArray();
+
+                if (fileInput.files.length > 0) {
+                    formData.append('CategoryImg', fileInput.files[0]);
+                }
+
+                $.each(otherData, function (key, input) {
+                    formData.append(input.name, input.value);
+                });
+
+                var actionUrl = $('#categoryForm').attr('action');
+
+                $.ajax({
+                    url: actionUrl,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = '@Url.Action("List", "Category")';
+                        } else {
+                            // Handle validation errors and display them
+                            var validationSummary = $('.text-danger');
+                            validationSummary.empty();
+                            $.each(response.errors, function (index, error) {
+                                validationSummary.append('<div>' + error + '</div>');
+                            });
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error("Error uploading file: " + textStatus + ", " + errorThrown);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+</body>
+
+

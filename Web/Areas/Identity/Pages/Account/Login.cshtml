@@ -1,0 +1,111 @@
+﻿@page
+@model LoginModel
+
+@{
+    Layout = null;
+}
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta content="Codescandy" name="author">
+    <title>SignUp</title>
+    <!-- Favicon icon-->
+    <link rel="shortcut icon" type="image/x-icon" href="~/images/favicon/favicon.ico">
+
+
+    <!-- Libs CSS -->
+    <link href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="~/lib/feather-webfont/dist/feather-icons.css" rel="stylesheet">
+    <link href="~/lib/simplebar/dist/simplebar.min.css" rel="stylesheet">
+
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="~/css/theme.min.css">
+
+</head>
+
+<body>
+    <main>
+        <!-- section -->
+        <section class="my-lg-14 my-8">
+            <div class="container rounded">
+                <!-- row -->
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-12 col-md-6 col-lg-4 order-lg-1 order-2">
+                        <!-- img -->
+                        <img src="~/images/svg-graphics/signin-g.svg" alt="signin" class="img-fluid" />
+                    </div>
+                    <!-- col -->
+                    <div class="mt-2 mb-2 col-12 col-md-6 offset-lg-1 col-lg-4 order-lg-2 order-1 rounded bg-light-subtle">
+                        <div class="mb-lg-9 mb-5">
+                            <h1 class="text-center mb-1 h2 fw-bold">Login</h1>
+                            <p class="text-center">Welcome back! Enter your email to Login.</p>
+                        </div>
+
+                        <form id="account" method="post" class="needs-validation" novalidate>
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="row g-3">
+                                <!-- row -->
+
+                                <div class="form-group">
+                                    <!-- input -->
+                                    <label asp-for="Input.Email" for="formSignupEmail" class="control-label form-label">Email address</label>
+                                    <input asp-for="Input.Email" type="email" class="form-control" id="formSignupEmail" placeholder="Email" required />
+                                    <div class="invalid-feedback">Please enter email.</div>
+                                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <div class="password-field position-relative">
+                                        <label asp-for="Input.Password" for="formSignupPassword" class="control-label form-label">Password</label>
+                                        <div class="password-field position-relative">
+                                            <input asp-for="Input.Password" type="password" class="form-control fakePassword" id="formSignupPassword" placeholder="*****" required />
+                                            <span><i class="bi bi-eye-slash passwordToggler"></i></span>
+                                            <div class="invalid-feedback">Please enter password.</div>
+                                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <!-- form check -->
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                                        <!-- label -->
+                                        <label class="form-check-label" for="flexCheckDefault">Remember me</label>
+                                    </div>
+                                    <div>
+                                        Forgot password?
+                                        <a asp-area="Identity" asp-page="/Account/ForgotPassword">Reset It</a>
+                                    </div>
+                                </div>
+                                <!-- btn -->
+                                <div class="col-12 d-grid"><button type="submit" class="btn btn-primary">Login</button></div>
+                                <!-- link -->
+                                <div>
+                                    Don’t have an account?
+                                    <a asp-area="Identity" asp-page="/Account/Register">Register</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- <script src="~lib/jquery/dist/jquery.min.js"></script> -->
+    <script src="~lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~lib/simplebar/dist/simplebar.min.js"></script>
+
+    <!-- Theme JS -->
+    <script src="~/js/theme.min.js"></script>
+
+    <script src="~/js/vendors/password.js"></script>
+    <script src="~/js/vendors/validation.js"></script>
+</body>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
