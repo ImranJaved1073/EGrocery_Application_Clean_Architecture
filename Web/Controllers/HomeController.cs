@@ -1,8 +1,10 @@
 using Application.Services;
+using Application.UseCases;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Web.Models;
+using System.Threading.Tasks;
 
 namespace Web.Controllers
 {
@@ -11,49 +13,56 @@ namespace Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ProductService _productService;
         private readonly CategoryService _categoryService;
+        private readonly GetUnitNameUseCase _unitNameUsecase;
 
-        public HomeController(ILogger<HomeController> logger, ProductService productService, CategoryService categoryService)
+        public HomeController(ILogger<HomeController> logger, ProductService productService, CategoryService categoryService, GetUnitNameUseCase unitNameUseCase)
         {
             _logger = logger;
             _productService = productService;
             _categoryService = categoryService;
+            _unitNameUsecase = unitNameUseCase;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            List<Category> nonparents = _categoryService.GetNonParentCategories();
-            List<Product> products = new List<Product>();
-            products = _productService.GetAllProducts().ToList();
-            //getting top 10 products in last 7 days 
-            products = products.OrderByDescending(p => p.CreatedAt > DateTime.Now.AddDays(-7)).Take(10).ToList();
+            var nonparents = await _categoryService.GetNonParentCategoriesAsync();
+            var products = (await _productService.GetAllProductsAsync()).ToList();
+            // Getting top 10 products in last 7 days
+            products = products.Where(p => p.CreatedAt > DateTime.Now.AddDays(-7))
+                                .OrderByDescending(p => p.CreatedAt)
+                                .Take(10)
+                                .ToList();
             ViewBag.Products = products;
             return View(nonparents);
         }
 
-        public IActionResult ShopItems(int? id, int pageNumber, int pageSize, string view)
+        public async Task<IActionResult> ShopItems(int? id, int pageNumber, int pageSize, string view)
         {
-            List<Category> parents = _categoryService.GetCategoriesHavingSubCategories();
-            List<SubCategoryViewModel> subCategoryViewModels = new List<SubCategoryViewModel>();
-            List<Product> products = new List<Product>();
-            foreach (Category category in parents)
+            var parents = await _categoryService.GetCategoriesHavingSubCategoriesAsync();
+            var subCategoryViewModels = new List<SubCategoryViewModel>();
+            List<Product> products;
+
+            foreach (var category in parents)
             {
-                SubCategoryViewModel subCategory = new SubCategoryViewModel();
-                subCategory.Category = category;
-                subCategory.SubCategories = _categoryService.GetSubCategories(category.Id);
-                subCategory.Products = _productService.GetProductsByCategory(category.Id);
+                var subCategory = new SubCategoryViewModel
+                {
+                    Category = category,
+                    SubCategories = await _categoryService.GetSubCategoriesAsync(category.Id),
+                    Products = await _productService.GetProductsByCategoryAsync(category.Id)
+                };
                 subCategoryViewModels.Add(subCategory);
             }
 
             if (id != null)
             {
-                products = _productService.GetProductsByCategory((int)id);
-                string name = _categoryService.GetCategoryById((int)id).CategoryName;
+                products = (await _productService.GetProductsByCategoryAsync((int)id)).ToList();
+                var name = (await _categoryService.GetCategoryByIdAsync((int)id)).CategoryName;
                 if (name != null)
                     TempData["CategoryName"] = name;
             }
             else
             {
-                products = _productService.GetAllProducts().ToList();
+                products = (await _productService.GetAllProductsAsync()).ToList();
             }
             ViewBag.Categories = subCategoryViewModels;
 
@@ -62,13 +71,14 @@ namespace Web.Controllers
                 pageSize = 15;
             }
 
-            int totalItems = products.Count();
-            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+            var totalItems = products.Count();
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
             if (pageNumber < 1)
                 pageNumber = 1;
-            var pages = new PaginatedList(pageNumber, totalPages, pageSize, totalItems);
+
+            var pager = new PaginatedList(pageNumber, totalPages, pageSize, totalItems);
             var data = products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-            ViewBag.Pages = pages;
+            ViewBag.Pages = pager;
             ViewBag.CurrentPage = pageNumber;
             ViewBag.PageSize = pageSize;
             ViewBag.View = view;
@@ -76,20 +86,17 @@ namespace Web.Controllers
             return View(data);
         }
 
-
-        public IActionResult ShopProduct(int id)
+        public async Task<IActionResult> ShopProduct(int id)
         {
-            //SubCategoryViewModel subCategory = new SubCategoryViewModel();
-            //subCategory.GetSubCategories(categoryId);
-            //subCategory.GetProducts(categoryId);
-            //return View(subCategory);
-            Product product = _productService.GetProductById(id);
+            var product = await _productService.GetProductByIdAsync(id);
+            product.UnitName = await _unitNameUsecase.GetNameAsync(product.UnitID);
             return View(product);
         }
 
-        public IActionResult Load(string x)
+        public async Task<IActionResult> Load(string x)
         {
-            return PartialView("_ProductsList", _productService.SearchProducts(x).ToList());
+            var products = (await _productService.SearchProductsAsync(x)).ToList();
+            return PartialView("_ProductsList", products);
         }
 
         public IActionResult About()

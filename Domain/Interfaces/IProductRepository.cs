@@ -1,9 +1,9 @@
 ﻿namespace Domain
 {
-    public interface IProductRepository: IRepository<Product>
+    public interface IProductRepository : IRepository<Product>
     {
-        //List<Product> Search(string search);
-        Product GetProduct(string name, int categoryID, int brandID);
-        List<Product> GetProductsByCategory(int categoryID);
+        // Task<List<Product>> SearchAsync(string search);
+        Task<Product> GetProductAsync(string name, int categoryID, int brandID);
+        Task<List<Product>> GetProductsByCategoryAsync(int categoryID);
     }
 }

@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Web.Data;
 using Infrastructure;
 using Application.Services;
+using Application.UseCases;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,9 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<OrderDetailService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<BrandService>();
+builder.Services.AddScoped<GetUnitNameUseCase>();
+builder.Services.AddScoped<GetUnitsUseCase>();
+
 
 builder.Services.AddTransient<IProductRepository, ProductRepository>(provider =>
     new ProductRepository(@"Data Source=DESKTOP-EQ55Q8H\SQLEXPRESS;Initial Catalog=GroceryDb;Integrated Security=True;Persist Security Info=False;Pooling=False;Multiple Active Result Sets=False;Encrypt=False;Trust Server Certificate=True;Command Timeout=0"));

@@ -1,8 +1,5 @@
 ﻿using Domain;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.Services
@@ -16,14 +13,14 @@ namespace Application.Services
             _orderDetailRepository = orderDetailRepository;
         }
 
-        public void AddOrderDetail(OrderDetail detail)
+        public async Task AddOrderDetailAsync(OrderDetail detail)
         {
-            _orderDetailRepository.Add(detail);
+            await _orderDetailRepository.AddAsync(detail);
         }
 
-        public List<OrderDetail> GetAll()
+        public async Task<List<OrderDetail>> GetAllAsync()
         {
-           return _orderDetailRepository.Get();
+            return await _orderDetailRepository.GetAsync();
         }
     }
 }

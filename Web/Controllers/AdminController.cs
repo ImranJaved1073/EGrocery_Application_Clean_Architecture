@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Domain;
 using Application.Services;
+using System.Threading.Tasks;
 
 namespace Web.Controllers
 {
@@ -19,13 +20,13 @@ namespace Web.Controllers
             _categoryRepository = categoryRepository;
         }
 
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
-            var orders = _orderService.GetAllOrders();
+            var orders = await _orderService.GetAllOrdersAsync();
             ViewBag.TotalSales = orders.Sum(x => x.TotalBill);
-            ViewBag.TotalOrders = _orderService.GetAllOrders().Count();
-            ViewBag.TotalProducts = _productService.GetAllProducts().Count();
-            ViewBag.TotalCategories = _categoryRepository.Get().Count();
+            ViewBag.TotalOrders = orders.Count();
+            ViewBag.TotalProducts = (await _productService.GetAllProductsAsync()).Count();
+            ViewBag.TotalCategories = (await _categoryRepository.GetAsync()).Count();
             return View();
         }
     }

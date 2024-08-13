@@ -1,5 +1,7 @@
 ﻿using Domain;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Web.Controllers
 {
@@ -14,21 +16,23 @@ namespace Web.Controllers
             _productRepository = productRepository;
         }
 
-        public IViewComponentResult Invoke()
+        public async Task<IViewComponentResult> InvokeAsync()
         {
-            List<Category> parents = _categoryRepository.GetCategoriesWithSubCategories();
-            List<SubCategoryViewModel> subCategoryViewModels = new List<SubCategoryViewModel>();
-            foreach (Category category in parents)
+            var parents = await _categoryRepository.GetCategoriesWithSubCategoriesAsync();
+            var subCategoryViewModels = new List<SubCategoryViewModel>();
+
+            foreach (var category in parents)
             {
-                SubCategoryViewModel subCategory = new SubCategoryViewModel();
-                subCategory.Category = category;
-                subCategory.SubCategories = _categoryRepository.GetSubCategories(category.Id);
-                subCategory.Products = _productRepository.GetProductsByCategory(category.Id);
+                var subCategory = new SubCategoryViewModel
+                {
+                    Category = category,
+                    SubCategories = await _categoryRepository.GetSubCategoriesAsync(category.Id),
+                    Products = await _productRepository.GetProductsByCategoryAsync(category.Id)
+                };
                 subCategoryViewModels.Add(subCategory);
             }
+
             return View(subCategoryViewModels);
         }
-
-
     }
 }

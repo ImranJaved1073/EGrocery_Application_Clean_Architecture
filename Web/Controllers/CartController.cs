@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Application.Services;
 using Application.UseCases;
+using System.Threading.Tasks;
 
 namespace Web.Controllers
 {
@@ -13,26 +14,26 @@ namespace Web.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ProductService _productService;
-        private readonly GetUnitNameUseCase _unitNameUsecase;
+        private readonly GetUnitNameUseCase _unitNameUseCase;
 
         public CartController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ProductService productService, GetUnitNameUseCase unitNameUseCase)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _productService = productService;
-            _unitNameUsecase = unitNameUseCase;
+            _unitNameUseCase = unitNameUseCase;
         }
 
         [Authorize]
-        public IActionResult Cart()
+        public async Task<IActionResult> Cart()
         {
-            var user = _userManager.GetUserAsync(User).Result;
+            var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return RedirectToAction("Login", "Account");
             }
             LoadCartFromCookies(user.Id);
-            Cart? cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
+            var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
             if (cart == null || cart.Items.Count == 0)
             {
                 cart = new Cart();
@@ -43,17 +44,17 @@ namespace Web.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult AddToCart(Product p, int id)
+        public async Task<IActionResult> AddToCart(Product p, int id)
         {
-            Product product = _productService.GetProductById(id);
-            var user = _userManager.GetUserAsync(User).Result;
+            var product = await _productService.GetProductByIdAsync(id);
+            var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
                 if (product != null)
                 {
-                    Cart? cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id) ?? new Cart();
+                    var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id) ?? new Cart();
 
-                    CartItem cartItem = new CartItem
+                    var cartItem = new CartItem
                     {
                         Id = product.Id,
                         Name = product.Name,
@@ -61,9 +62,9 @@ namespace Web.Controllers
                         Quantity = p.Quantity,
                         ImagePath = product.ImagePath,
                         Weight = product.Weight,
-                        Unit = _unitNameUsecase.GetName(product.UnitID)
+                        Unit = await _unitNameUseCase.GetNameAsync(product.UnitID)
                     };
-                    CartItem? item = cart.Items.Find(x => x.Id == product.Id);
+                    var item = cart.Items.Find(x => x.Id == product.Id);
                     if (item == null)
                     {
                         cart.Items.Add(cartItem);
@@ -86,16 +87,16 @@ namespace Web.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult RemoveFromCart(int id)
+        public async Task<IActionResult> RemoveFromCart(int id)
         {
-            var user = _userManager.GetUserAsync(User).Result;
+            var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            Cart cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
-            CartItem? cartItem = cart.Items.Find(x => x.Id == id);
+            var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
+            var cartItem = cart.Items.Find(x => x.Id == id);
             if (cartItem != null)
             {
                 cart.TotalPrice -= cartItem.Price * cartItem.Quantity;
@@ -108,16 +109,16 @@ namespace Web.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult UpdateCart(int id, int quantity)
+        public async Task<IActionResult> UpdateCart(int id, int quantity)
         {
-            var user = _userManager.GetUserAsync(User).Result;
+            var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            Cart cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
-            CartItem? cartItem = cart.Items.Find(x => x.Id == id);
+            var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
+            var cartItem = cart.Items.Find(x => x.Id == id);
             if (cartItem != null)
             {
                 cart.TotalPrice -= cartItem.Price * cartItem.Quantity;
@@ -130,21 +131,18 @@ namespace Web.Controllers
             return RedirectToAction("Cart");
         }
 
-
         [Authorize]
-        public IActionResult CheckOut()
+        public async Task<IActionResult> CheckOut()
         {
-            var user = _userManager.GetUserAsync(User).Result;
+            var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return RedirectToAction("Login", "Account");
             }
             LoadCartFromCookies(user.Id);
-            Cart? cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
-            //if cart is empty, redirect to cart page and show alert message your cart is empty
+            var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
             if (cart == null || cart.Items.Count == 0)
             {
-                //TempData["Message"] = "Your cart is empty";
                 return RedirectToAction("Cart");
             }
             else
@@ -176,6 +174,5 @@ namespace Web.Controllers
                 }
             }
         }
-
     }
 }

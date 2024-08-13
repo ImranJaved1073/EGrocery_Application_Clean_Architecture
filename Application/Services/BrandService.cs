@@ -1,8 +1,5 @@
 ﻿using Domain;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.Services
@@ -16,14 +13,15 @@ namespace Application.Services
             _brandRepository = brandRepository;
         }
 
-        public string getBrandName(int id)
+        public async Task<string> GetBrandNameAsync(int id)
         {
-            return _brandRepository.Get(id).BrandName;
+            var brand = await _brandRepository.GetAsync(id);
+            return brand.BrandName;
         }
 
-        public List<Brand> getAllBrands()
+        public async Task<List<Brand>> GetAllBrandsAsync()
         {
-            return _brandRepository.Get();
+            return await _brandRepository.GetAsync();
         }
     }
 }

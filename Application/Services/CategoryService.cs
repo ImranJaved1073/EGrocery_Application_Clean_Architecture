@@ -1,8 +1,5 @@
 ﻿using Domain;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.Services
@@ -16,59 +13,59 @@ namespace Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        public List<Category> GetAll()
+        public async Task<List<Category>> GetAllAsync()
         {
-           return _categoryRepository.Get();
+            return await _categoryRepository.GetAsync();
         }
 
-        public List<Category> SearchCategory(string keyword)
+        public async Task<List<Category>> SearchCategoryAsync(string keyword)
         {
-            return _categoryRepository.Search(keyword);
+            return await _categoryRepository.SearchAsync(keyword);
         }
 
-        public List<Category> GetParentCategories()
+        public async Task<List<Category>> GetParentCategoriesAsync()
         {
-            return _categoryRepository.GetParents();
+            return await _categoryRepository.GetParentsAsync();
         }
 
-        public List<Category> GetNames()
+        public async Task<List<Category>> GetNamesAsync()
         {
-            return _categoryRepository.GetNames();
+            return await _categoryRepository.GetNamesAsync();
         }
 
-        public Category GetCategoryById(int id)
+        public async Task<Category> GetCategoryByIdAsync(int id)
         {
-            return _categoryRepository.Get(id);
+            return await _categoryRepository.GetAsync(id);
         }
 
-        public void AddCategory(Category category)
+        public async Task AddCategoryAsync(Category category)
         {
-            _categoryRepository.Add(category);
+            await _categoryRepository.AddAsync(category);
         }
 
-        public void RemoveCategory(int id)
+        public async Task RemoveCategoryAsync(int id)
         {
-            _categoryRepository.Delete(id);
+            await _categoryRepository.DeleteAsync(id);
         }
 
-        public void UpdateCategory(Category category)
+        public async Task UpdateCategoryAsync(Category category)
         {
-            _categoryRepository.Update(category);
+            await _categoryRepository.UpdateAsync(category);
         }
 
-        public List<Category> GetCategoriesHavingSubCategories()
+        public async Task<List<Category>> GetCategoriesHavingSubCategoriesAsync()
         {
-           return _categoryRepository.GetCategoriesWithSubCategories();
+            return await _categoryRepository.GetCategoriesWithSubCategoriesAsync();
         }
 
-        public List<Category> GetNonParentCategories()
+        public async Task<List<Category>> GetNonParentCategoriesAsync()
         {
-            return _categoryRepository.GetNonParentCategories();
+            return await _categoryRepository.GetNonParentCategoriesAsync();
         }
 
-        public List<Category> GetSubCategories(int parentCategoryId)
+        public async Task<List<Category>> GetSubCategoriesAsync(int parentCategoryId)
         {
-            return _categoryRepository.GetSubCategories(parentCategoryId);
+            return await _categoryRepository.GetSubCategoriesAsync(parentCategoryId);
         }
     }
 }

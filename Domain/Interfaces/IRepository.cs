@@ -2,16 +2,12 @@
 {
     public interface IRepository<TEntity>
     {
-        //TEntity FindById(int id);
-        public void Add(TEntity entity);
-        public void Update(TEntity entity);
-
-        public void Delete(int id);
-        public TEntity Get(int id);
-
-        public List<TEntity> Get();
-
-        public List<TEntity> Search(string search);
+        // Task<TEntity> FindByIdAsync(int id);
+        Task AddAsync(TEntity entity);
+        Task UpdateAsync(TEntity entity);
+        Task DeleteAsync(int id);
+        Task<TEntity> GetAsync(int id);
+        Task<List<TEntity>> GetAsync();
+        Task<List<TEntity>> SearchAsync(string search);
     }
-
 }

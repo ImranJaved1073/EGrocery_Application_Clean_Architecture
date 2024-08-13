@@ -1,8 +1,12 @@
 ﻿using Application.Services;
+using Application.UseCases;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Web.Models;
 
 namespace Web.Controllers
 {
@@ -14,16 +18,18 @@ namespace Web.Controllers
         private readonly ProductService _productService;
         private readonly OrderService _orderService;
         private readonly OrderDetailService _orderDetailService;
+        private readonly GetUnitNameUseCase _unitNameUsecase;
 
         public OrderController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager,
-            OrderService orderService, OrderDetailService orderDetailService, ILogger<OrderController> logger, ProductService productService)
+            OrderService orderService, OrderDetailService orderDetailService, ILogger<OrderController> logger, ProductService productService, GetUnitNameUseCase unitNameUseCase)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _orderService = orderService;
             _orderDetailService = orderDetailService;
-            _productService = productService;
             _logger = logger;
+            _productService = productService;
+            _unitNameUsecase = unitNameUseCase;
         }
 
         public IActionResult Index()
@@ -33,22 +39,21 @@ namespace Web.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult AddOrder(CheckOut odrs)
+        public async Task<IActionResult> AddOrder(CheckOut odrs)
         {
-            var user = _userManager.GetUserAsync(User).Result;
+            var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
                 var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
                 if (cart != null)
                 {
-                    Orders order = new Orders
+                    var order = new Orders
                     {
                         UserId = user.Id,
                         OrderNum = GenerateOrderNumber(),
                         OrderDate = DateTime.Now,
                         Status = "Pending",
                         TotalBill = cart.TotalPrice,
-                        //TotalDiscount = cart.TotalDiscount,
                         CheckOut = new CheckOut
                         {
                             OrderDeliveryDate = DateTime.Today.AddDays(1),
@@ -58,7 +63,6 @@ namespace Web.Controllers
                             ZipCode = odrs.ZipCode,
                             State = odrs.State ?? "",
                         },
-                        //PaymentStatus = "Pending",
                         OrderDetails = cart.Items.Select(x => new OrderDetail
                         {
                             ProductId = x.Id,
@@ -69,12 +73,12 @@ namespace Web.Controllers
                         }).ToList()
                     };
 
-                    _orderService.CreateOrder(order);
+                    await _orderService.CreateOrderAsync(order);
 
                     foreach (var item in order.OrderDetails)
                     {
-                        item.OrderId = _orderService.GetbyOrderNo(order.OrderNum).Id;
-                        _orderDetailService.AddOrderDetail(item);
+                        item.OrderId = (await _orderService.GetbyOrderNoAsync(order.OrderNum)).Id;
+                        await _orderDetailService.AddOrderDetailAsync(item);
                     }
 
                     CookieHelper.ClearCartCookies(HttpContext, user.Id);
@@ -85,10 +89,10 @@ namespace Web.Controllers
         }
 
         [Authorize]
-        public IActionResult Order(string statusFilter, DateTime? startDate, DateTime? endDate)
+        public async Task<IActionResult> Order(string statusFilter, DateTime? startDate, DateTime? endDate)
         {
-            var user = _userManager.GetUserAsync(User).Result;
-            var orders = _orderService.GetAllOrders();
+            var user = await _userManager.GetUserAsync(User);
+            var orders = (await _orderService.GetAllOrdersAsync()).ToList();
             var status = orders.Select(o => o.Status).Distinct().ToList();
             ViewBag.StatusOptions = status;
             orders = orders.Where(x => x.UserId == user?.Id).ToList();
@@ -100,71 +104,43 @@ namespace Web.Controllers
             {
                 orders = orders.Where(x => x.OrderDate >= startDate && x.OrderDate <= endDate).ToList();
             }
-
-            orders = orders.ToList();
-
-
             return View(orders);
-
         }
 
-        public IActionResult OrderDetails(int id)
+        public async Task<IActionResult> OrderDetails(int id)
         {
-            List<Orders> orders = _orderService.GetAllOrders().ToList();
-            var order = orders.Where(x => x.Id == id).FirstOrDefault();
+            var orders = (await _orderService.GetAllOrdersAsync()).ToList();
+            var order = orders.FirstOrDefault(x => x.Id == id);
             if (order == null)
             {
                 return NotFound();
             }
-            order.OrderDetails = _orderDetailService.GetAll().Where(x => x.OrderId == id).ToList();
+            order.OrderDetails = (await _orderDetailService.GetAllAsync()).Where(x => x.OrderId == id).ToList();
             foreach (var item in order.OrderDetails)
             {
-                item.Product = _productService.GetProductById(item.ProductId);
+                item.Product = await _productService.GetProductByIdAsync(item.ProductId);
+                item.Product.UnitName = await _unitNameUsecase.GetNameAsync(item.Product.UnitID);
             }
             return View(order);
         }
 
-        //public IActionResult OrderStatus(int id, string status)
-        //{
-        //    OrderRepository oR = new OrderRepository();
-        //    var order = oR.Get(id);
-        //    order.Status = status;
-        //    oR.Update(order);
-        //    return RedirectToAction("Order", "Order");
-        //}
-
-        public IActionResult OrderStatusUpdate(int id, string status)
+        public async Task<IActionResult> OrderStatusUpdate(int id, string status)
         {
-            var orders = _orderService.GetAllOrders();
-            Orders? order = orders.Where(x => x.Id == id).FirstOrDefault();
+            var orders = (await _orderService.GetAllOrdersAsync()).ToList();
+            var order = orders.FirstOrDefault(x => x.Id == id);
             if (order == null)
             {
                 return NotFound();
             }
             order.Status = status;
-            _orderService.UpdateStatus(order);
+            await _orderService.UpdateStatusAsync(order);
             return RedirectToAction("OrderDetails", "Order", new { id = id });
         }
 
-        //public IActionResult OrderStatusDelete(int id)
-        //{
-        //    OrderRepository oR = new OrderRepository();
-        //    oR.Delete(id);
-        //    return RedirectToAction("Order", "Order");
-        //}
-
-        //public IActionResult OrderStatusDeleteUpdate(int id)
-        //{
-        //    OrderRepository oR = new OrderRepository();
-        //    var order = oR.Get(id);
-        //    oR.Delete(order);
-        //    return RedirectToAction("Order", "Order");
-        //}
-
         [Authorize(Policy = "AdminPolicy")]
-        public IActionResult ViewOrder(string statusFilter, DateTime? startDate, DateTime? endDate, string customerName, string ordernumber, int? id)
+        public async Task<IActionResult> ViewOrder(string statusFilter, DateTime? startDate, DateTime? endDate, string customerName, string ordernumber, int? id)
         {
-            var orders = _orderService.GetAllOrders();
+            var orders = (await _orderService.GetAllOrdersAsync()).ToList();
             var status = orders.Select(o => o.Status).Distinct().ToList();
             ViewBag.StatusOptions = status;
 
@@ -172,7 +148,10 @@ namespace Web.Controllers
             {
                 orders = orders.Where(x => x.Status == statusFilter).ToList();
             }
-            else orders = orders.Where(x => x.Status != "Cancelled").ToList();
+            else
+            {
+                orders = orders.Where(x => x.Status != "Cancelled").ToList();
+            }
             if (startDate.HasValue && endDate.HasValue)
             {
                 orders = orders.Where(x => x.OrderDate >= startDate && x.OrderDate <= endDate).ToList();
@@ -190,7 +169,7 @@ namespace Web.Controllers
             {
                 if (item.UserId != null)
                 {
-                    item.User = _userManager.FindByIdAsync(item.UserId).Result;
+                    item.User = await _userManager.FindByIdAsync(item.UserId);
                 }
             }
 
@@ -199,23 +178,21 @@ namespace Web.Controllers
                 var order = orders.FirstOrDefault(x => x.Id == id.Value);
                 if (order != null)
                 {
-                    order.OrderDetails = _orderDetailService.GetAll().Where(x => x.OrderId == id.Value).ToList();
+                    order.OrderDetails = (await _orderDetailService.GetAllAsync()).Where(x => x.OrderId == id.Value).ToList();
                     foreach (var detail in order.OrderDetails)
                     {
-                        detail.Product = _productService.GetProductById(detail.ProductId);
+                        detail.Product = await _productService.GetProductByIdAsync(detail.ProductId);
                     }
                     if (order.UserId != null)
                     {
-                        order.User = _userManager.FindByIdAsync(order.UserId).Result;
+                        order.User = await _userManager.FindByIdAsync(order.UserId);
                     }
                     ViewBag.Order = order;
                 }
             }
 
-            orders = orders.ToList();
             return View(orders);
         }
-
 
         public static string GenerateOrderNumber()
         {
@@ -228,6 +205,5 @@ namespace Web.Controllers
             // Combine the timestamp and GUID components to form a unique order number
             return $"{timestamp}-{guidComponent}";
         }
-
     }
 }

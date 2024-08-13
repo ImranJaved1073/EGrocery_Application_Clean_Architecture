@@ -1,8 +1,5 @@
 ﻿using Domain;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.Services
@@ -16,39 +13,39 @@ namespace Application.Services
             _orderRepository = orderRepository;
         }
 
-        public IEnumerable<Orders> GetAllOrders()
+        public async Task<IEnumerable<Orders>> GetAllOrdersAsync()
         {
-           return _orderRepository.Get();
+            return await _orderRepository.GetAsync();
         }
 
-        public Orders GetOrderById(int id)
+        public async Task<Orders> GetOrderByIdAsync(int id)
         {
-            return _orderRepository.Get(id);
+            return await _orderRepository.GetAsync(id);
         }
 
-        public void CreateOrder(Orders od)
+        public async Task CreateOrderAsync(Orders od)
         {
-            _orderRepository.Add(od);
+            await _orderRepository.AddAsync(od);
         }
 
-        public void UpdateOrder(Orders od)
+        public async Task UpdateOrderAsync(Orders od)
         {
-            _orderRepository.Update(od);
+            await _orderRepository.UpdateAsync(od);
         }
 
-        public void DeleteOrder(int id)
+        public async Task DeleteOrderAsync(int id)
         {
-            _orderRepository.Delete(id);
+            await _orderRepository.DeleteAsync(id);
         }
 
-        public Orders GetbyOrderNo(string orderno)
+        public async Task<Orders> GetbyOrderNoAsync(string orderno)
         {
-            return _orderRepository.Get(orderno);
+            return await _orderRepository.GetAsync(orderno);
         }
 
-        public void UpdateStatus(Orders order)
+        public async Task UpdateStatusAsync(Orders order)
         {
-            _orderRepository.UpdateStatus(order);
+            await _orderRepository.UpdateStatusAsync(order);
         }
     }
 }

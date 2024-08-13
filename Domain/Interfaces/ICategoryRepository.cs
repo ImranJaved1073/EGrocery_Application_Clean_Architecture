@@ -1,20 +1,21 @@
 ﻿
+
 namespace Domain
 {
     public interface ICategoryRepository : IRepository<Category>
     {
-        public List<Category> GetNames();
+        Task<List<Category>> GetNamesAsync();
 
-        public List<Category> GetParents();
+        Task<List<Category>> GetParentsAsync();
 
-        public List<Category> GetCategoriesWithSubCategories();
+        Task<List<Category>> GetCategoriesWithSubCategoriesAsync();
 
-        public List<Category> GetSubCategories(int parentCategoryId);
+        Task<List<Category>> GetSubCategoriesAsync(int parentCategoryId);
 
-        public List<Category> GetNonParentCategories();
+        Task<List<Category>> GetNonParentCategoriesAsync();
 
-        //public Category Get(int id);
+        // Task<Category> GetAsync(int id);
 
-        //public List<Category> Search(string search);
+        // Task<List<Category>> SearchAsync(string search);
     }
 }

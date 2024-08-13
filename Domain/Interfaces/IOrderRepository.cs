@@ -2,7 +2,7 @@
 {
     public interface IOrderRepository : IRepository<Orders>
     {
-        public Orders Get(string orderno);
-        public void UpdateStatus(Orders order);
+        Task<Orders> GetAsync(string orderno);
+        Task UpdateStatusAsync(Orders order);
     }
 }

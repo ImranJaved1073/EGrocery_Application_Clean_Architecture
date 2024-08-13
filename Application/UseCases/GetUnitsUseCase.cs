@@ -1,8 +1,5 @@
 ﻿using Domain;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.UseCases
@@ -16,9 +13,9 @@ namespace Application.UseCases
             _repository = repository;
         }
 
-        public List<Unit> Get()
+        public async Task<List<Unit>> GetAsync()
         {
-            return _repository.Get();
+            return await _repository.GetAsync();
         }
     }
 }

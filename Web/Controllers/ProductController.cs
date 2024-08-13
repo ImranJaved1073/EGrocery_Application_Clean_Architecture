@@ -4,6 +4,9 @@ using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
+using System.IO;
+using System.Linq;
 
 namespace Web.Controllers
 {
@@ -31,22 +34,22 @@ namespace Web.Controllers
             _unitsUseCase = unitsUseCase;
         }
 
-        public IActionResult ProductList(string search, int pageNumber)
+        public async Task<IActionResult> ProductList(string search, int pageNumber)
         {
-            List<Product> products = new();
+            List<Product> products;
             if (!string.IsNullOrEmpty(search))
             {
-                products = _productService.SearchProducts(search).ToList();
+                products = (await _productService.SearchProductsAsync(search)).ToList();
             }
             else
             {
-                products = _productService.GetAllProducts().ToList();
+                products = (await _productService.GetAllProductsAsync()).ToList();
             }
 
             foreach (var product in products)
             {
-                product.CategoryName = _categoryService.GetCategoryById(product.CategoryID).CategoryName;
-                product.BrandName = _brandService.getBrandName(product.BrandID);
+                product.CategoryName = (await _categoryService.GetCategoryByIdAsync(product.CategoryID)).CategoryName;
+                product.BrandName = await _brandService.GetBrandNameAsync(product.BrandID);
             }
 
             const int pageSize = 5;
@@ -64,9 +67,9 @@ namespace Web.Controllers
             return View(paginatedProducts);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            Product? product = _productService.GetProductById(id);
+            Product? product = await _productService.GetProductByIdAsync(id);
 
             // Check if the product exists
             if (product == null)
@@ -76,27 +79,25 @@ namespace Web.Controllers
                 return RedirectToAction("ProductList", "Product");
             }
 
-            product.CategoryName = _categoryService.GetCategoryById(product.CategoryID).CategoryName;
-            product.BrandName = _brandService.getBrandName(product.BrandID);
-            product.UnitName = _unitNameUsecase.GetName(product.UnitID);
+            product.CategoryName = (await _categoryService.GetCategoryByIdAsync(product.CategoryID)).CategoryName;
+            product.BrandName = await _brandService.GetBrandNameAsync(product.BrandID);
+            product.UnitName = await _unitNameUsecase.GetNameAsync(product.UnitID);
 
-            //showing error message if product already exists
+            // Showing error message if product already exists
             if (TempData["ProductExists"] != null)
             {
                 ViewBag.Alert = TempData["ProductExists"];
             }
 
             return View(product);
-
         }
 
-
-        public IActionResult AddProduct(int id)
+        public async Task<IActionResult> AddProduct(int id)
         {
-            AddProductViewModel addProduct = new AddProductViewModel();
+            var addProduct = new AddProductViewModel();
             if (id != 0)
             {
-                Product product = _productService.GetProductById(id);
+                var product = await _productService.GetProductByIdAsync(id);
 
                 // Check if the product exists
                 if (product == null)
@@ -108,15 +109,15 @@ namespace Web.Controllers
                 addProduct.Product = product;
             }
 
-            List<Category> categories = _categoryService.GetNonParentCategories().ToList();
-            List<Brand> brands = _brandService.getAllBrands().ToList();
-            List<Unit> units = _unitsUseCase.Get().ToList();
+            var categories = (await _categoryService.GetNonParentCategoriesAsync()).ToList();
+            var brands = (await _brandService.GetAllBrandsAsync()).ToList();
+            var units = (await _unitsUseCase.GetAsync()).ToList();
 
             addProduct.Categories = new SelectList(categories, "Id", "CategoryName");
             addProduct.Brands = new SelectList(brands, "Id", "BrandName");
             addProduct.Units = new SelectList(units, "Id", "Name");
 
-            //showing error message if product already exists
+            // Showing error message if product already exists
             if (TempData["ProductExists"] != null)
             {
                 ViewBag.Alert = TempData["ProductExists"];
@@ -125,21 +126,10 @@ namespace Web.Controllers
             return View(addProduct);
         }
 
-
-        //[HttpPost]
-        //public IActionResult Edit(Product p, IFormFile picture)
-        //{
-        //    //p.ImageUrl = GetPath(picture);
-        //    //p.ImageName = picture.FileName;
-        //    ProductRepository productRepository = new ProductRepository();
-        //    productRepository.Update(p);
-        //    return RedirectToAction("ProductList", "Product");
-        //}
-
         [HttpPost]
-        public IActionResult Edit(AddProductViewModel p)
+        public async Task<IActionResult> Edit(AddProductViewModel p)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 if (p.Product?.Picture != null)
                 {
@@ -147,7 +137,7 @@ namespace Web.Controllers
                 }
 
                 // Save changes to the repository
-                _productService.UpdateProduct(p.Product!);
+                await _productService.UpdateProductAsync(p.Product!);
 
                 return RedirectToAction("ProductList", "Product");
             }
@@ -158,11 +148,10 @@ namespace Web.Controllers
             }
         }
 
-
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            Product? product = _productService.GetProductById(id);
+            var product = await _productService.GetProductByIdAsync(id);
 
             // Check if the product exists
             if (product == null)
@@ -172,18 +161,9 @@ namespace Web.Controllers
                 return RedirectToAction("ProductList", "Product");
             }
 
-            _productService.DeleteProduct(id);
+            await _productService.DeleteProductAsync(id);
             return RedirectToAction("ProductList", "Product");
         }
-
-        //[HttpPost]
-        //public IActionResult Search(string search)
-        //{
-        //    ProductRepository productsRepository = new ProductRepository();
-        //    List<Product> products = productsRepository.GetSearchProducts(search);
-        //    return View("ProductList", products);
-
-        //}
 
         private string GetPath(IFormFile picture)
         {
@@ -205,15 +185,15 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddProduct(AddProductViewModel? model)
+        public async Task<IActionResult> AddProduct(AddProductViewModel? model)
         {
             if (ModelState.IsValid)
             {
-                Product product = new();
+                var product = new Product();
 
                 if (model?.Product != null)
                 {
-                    product = _productService.GetProductIfExists(model.Product.Name!, model.Product.CategoryID, model.Product.BrandID);
+                    product = await _productService.GetProductIfExistsAsync(model.Product.Name!, model.Product.CategoryID, model.Product.BrandID);
 
                     if (product.Id == 0)
                     {
@@ -222,10 +202,7 @@ namespace Web.Controllers
                         product.CreatedAt = string.IsNullOrEmpty(model.Product.CreatedAt.ToString()) ? DateTime.Now : model.Product.CreatedAt;
                         product.UpdatedAt = string.IsNullOrEmpty(model.Product.UpdatedAt.ToString()) ? DateTime.Now : model.Product.UpdatedAt;
                         product.ImagePath = GetPath(model.Product.Picture!);
-                        _productService.CreateProduct(product);
-
-                        // Retrieve the product's ID after adding
-                        //product.Id = productRepository.GetProduct(model.Product.Name, model.Product.CategoryID, model.Product.BrandID).Id;
+                        await _productService.CreateProductAsync(product);
                     }
                     else
                     {

@@ -2,6 +2,10 @@
 using Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Web.Controllers
 {
@@ -17,63 +21,56 @@ namespace Web.Controllers
             _productService = productService;
             _categoryService = categoryService;
         }
-        public IActionResult List(string search, int pageNumber)
+
+        public async Task<IActionResult> List(string search, int pageNumber)
         {
-            List<Category> categories = new();
+            List<Category> categories;
             if (!string.IsNullOrEmpty(search))
             {
-                categories = _categoryService.SearchCategory(search).ToList();
+                categories = (await _categoryService.SearchCategoryAsync(search)).ToList();
             }
             else
             {
-                categories = _categoryService.GetParentCategories().ToList();
+                categories = (await _categoryService.GetParentCategoriesAsync()).ToList();
             }
             foreach (var category in categories)
             {
-                category.ProductCount = _productService.GetProductsByCategory(category.Id).Count();
+                category.ProductCount = (await _productService.GetProductsByCategoryAsync(category.Id)).Count();
             }
-            const int pageSize = 5;
-            //int excludeRecords = (pageSize * pageNumer) - pageSize;
-            //var totalRecords = categories.Count;
-            //var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-            //categories = categories.Skip(excludeRecords).Take(pageSize).ToList();
-            //ViewBag.TotalPages = totalPages;
-            //ViewBag.PageNumber = pageNumer;
-            //return View(categories);
 
+            const int pageSize = 5;
             var rescCount = categories.Count();
             var totalPages = (int)Math.Ceiling((double)rescCount / pageSize);
+
             if (pageNumber < 1)
                 pageNumber = totalPages;
+
             var pager = new PaginatedList(pageNumber, totalPages, pageSize, rescCount);
             var data = categories.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
             ViewBag.Pager = pager;
             ViewBag.CurrentPage = pageNumber;
             ViewBag.PageSize = pageSize;
 
-
             return View(data);
-
         }
 
-        public IActionResult Create(int id)
+        public async Task<IActionResult> Create(int id)
         {
-            List<Category> categories = _categoryService.GetNames().ToList();
+            var categories = (await _categoryService.GetNamesAsync()).ToList();
             ViewBag.Categories = new SelectList(categories, "Id", "CategoryName");
             if (id > 0)
             {
-                return View(_categoryService.GetCategoryById(id));
+                return View(await _categoryService.GetCategoryByIdAsync(id));
             }
             return View();
-
         }
 
         [HttpPost]
-        public IActionResult Create(Category c)
+        public async Task<IActionResult> Create(Category c)
         {
             if (c.CategoryImg != null)
                 c.ImgPath = GetPath(c.CategoryImg);
-            _categoryService.AddCategory(c);
+            await _categoryService.AddCategoryAsync(c);
             return RedirectToAction("List", "Category");
         }
 
@@ -83,47 +80,36 @@ namespace Web.Controllers
             string path = Path.Combine(wwwrootPath, "images", "categories");
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
-            string UniqueFileName = Guid.NewGuid().ToString() + "_" + picture.FileName;
+            string uniqueFileName = Guid.NewGuid().ToString() + "_" + picture.FileName;
             if (picture != null && picture.Length > 0)
             {
-                path = Path.Combine(path, UniqueFileName);
-
+                path = Path.Combine(path, uniqueFileName);
                 using (var fileStream = new FileStream(path, FileMode.Create))
                 {
                     picture.CopyTo(fileStream);
                 }
             }
-            return Path.Combine("images", "categories", UniqueFileName);
+            return Path.Combine("images", "categories", uniqueFileName);
         }
 
-
-        public IActionResult Delete(int id)
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
         {
-            //Category c = categoryRepository.Get(id);
-            _categoryService.RemoveCategory(id);
+            await _categoryService.RemoveCategoryAsync(id);
             return RedirectToAction("List", "Category");
         }
 
-        //public IActionResult Edit(int id)
-        //{
-        //    CategoryRepository categoryRepository = new CategoryRepository();
-        //    List<Category> categories = categoryRepository.GetNames().ToList();
-        //    ViewBag.Categories = new SelectList(categories, "Id", "CategoryName");
-        //    return View(categoryRepository.Get(id));
-        //}
-
         [HttpPost]
-
-        public IActionResult Edit(Category c)
+        public async Task<IActionResult> Edit(Category c)
         {
             if (c.CategoryImg != null)
                 c.ImgPath = GetPath(c.CategoryImg);
-            _categoryService.UpdateCategory(c);
+            await _categoryService.UpdateCategoryAsync(c);
             return RedirectToAction("List", "Category");
         }
 
         [HttpPost]
-        public IActionResult CreateOrEdit(Category category)
+        public async Task<IActionResult> CreateOrEdit(Category category)
         {
             if (ModelState.IsValid)
             {
@@ -134,7 +120,7 @@ namespace Web.Controllers
                     {
                         category.ImgPath = GetPath(files[0]);
                     }
-                    _categoryService.AddCategory(category);
+                    await _categoryService.AddCategoryAsync(category);
                 }
                 else
                 {
@@ -142,12 +128,10 @@ namespace Web.Controllers
                     {
                         category.ImgPath = GetPath(files[0]);
                     }
-                    _categoryService.UpdateCategory(category);
+                    await _categoryService.UpdateCategoryAsync(category);
                 }
             }
             return Json(new { success = true, message = "Saved Successfully" });
-
         }
-
     }
 }

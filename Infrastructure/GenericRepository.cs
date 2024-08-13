@@ -1,8 +1,10 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Dapper;
+using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Reflection;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using Dapper;
+using System.Threading.Tasks;
 using Domain;
 
 namespace Infrastructure
@@ -16,7 +18,7 @@ namespace Infrastructure
             connectionString = c;
         }
 
-        public void Add(TEntity entity)
+        public async Task AddAsync(TEntity entity)
         {
             var tableName = typeof(TEntity).Name;
             var properties = typeof(TEntity).GetProperties()
@@ -65,8 +67,8 @@ namespace Infrastructure
 
             using (var connection = new SqlConnection(connectionString))
             {
-                connection.Open();
-                connection.Execute(query, parameters);
+                await connection.OpenAsync();
+                await connection.ExecuteAsync(query, parameters);
             }
         }
 
@@ -74,7 +76,8 @@ namespace Infrastructure
         {
             return type.IsClass && type != typeof(string);
         }
-        public void Update(TEntity entity)
+
+        public async Task UpdateAsync(TEntity entity)
         {
             var tableName = typeof(TEntity).Name;
             var primaryKey = "Id";
@@ -82,51 +85,44 @@ namespace Infrastructure
             var propertiesExclude = typeof(TEntity).GetProperties().Where(x => x.Name != primaryKey && x.GetCustomAttribute<NotMappedAttribute>() == null);
 
             var setClause = string.Join(",", propertiesExclude.Select(a => $"{a.Name}=@{a.Name}"));
-            //var primaryKeyProp = properties.FirstOrDefault(x => x.Name == primaryKey);
 
-            var query = $"update {tableName} set {setClause} where {primaryKey}=@{primaryKey} ";
+            var query = $"UPDATE {tableName} SET {setClause} WHERE {primaryKey}=@{primaryKey}";
             using (var connection = new SqlConnection(connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
                 var comm = new SqlCommand(query, connection);
                 foreach (var prop in properties)
                 {
                     var value = prop.GetValue(entity) ?? DBNull.Value;
                     comm.Parameters.AddWithValue("@" + prop.Name, value);
                 }
-                comm.ExecuteNonQuery();
+                await comm.ExecuteNonQueryAsync();
             }
         }
 
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
             var tableName = typeof(TEntity).Name;
             var primaryKey = "Id";
-            var query = $"delete from {tableName} where {primaryKey}=@{primaryKey}";
+            var query = $"DELETE FROM {tableName} WHERE {primaryKey}=@{primaryKey}";
             using (var connection = new SqlConnection(connectionString))
             {
-                //connection.Open();
-                //var comm = new SqlCommand(query, connection);
-                //comm.Parameters.AddWithValue("@" + primaryKey, entity.GetType().GetProperty(primaryKey).GetValue(entity));
-                //comm.ExecuteNonQuery();
-                connection.Execute(query, new { Id = id });
+                await connection.ExecuteAsync(query, new { Id = id });
             }
         }
 
-
-        virtual public TEntity Get(int id)
+        public virtual async Task<TEntity> GetAsync(int id)
         {
-            var tablename = typeof(TEntity).Name;
-
-            var query = $"select * from {tablename} where id = @id";
+            var tableName = typeof(TEntity).Name;
+            var query = $"SELECT * FROM {tableName} WHERE Id = @Id";
 
             using (var connection = new SqlConnection(connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
                 SqlCommand cmd = new SqlCommand(query, connection);
-                cmd.Parameters.AddWithValue("@id", id);
-                var reader = cmd.ExecuteReader();
-                if (reader.Read())
+                cmd.Parameters.AddWithValue("@Id", id);
+                var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
                 {
                     var entity = Activator.CreateInstance<TEntity>();
                     var properties = typeof(TEntity).GetProperties()
@@ -157,9 +153,7 @@ namespace Infrastructure
             return default!;
         }
 
-
-
-        virtual public List<TEntity> Get()
+        public virtual async Task<List<TEntity>> GetAsync()
         {
             var tableName = typeof(TEntity).Name;
             var properties = typeof(TEntity).GetProperties()
@@ -182,8 +176,8 @@ namespace Infrastructure
 
             using (var connection = new SqlConnection(connectionString))
             {
-                connection.Open();
-                var result = connection.Query<dynamic>(query);
+                await connection.OpenAsync();
+                var result = await connection.QueryAsync<dynamic>(query);
 
                 var entities = new List<TEntity>();
 
@@ -217,7 +211,7 @@ namespace Infrastructure
             }
         }
 
-        virtual public List<TEntity> Search(string search)
+        public virtual async Task<List<TEntity>> SearchAsync(string search)
         {
             List<TEntity> entities = new List<TEntity>();
             var entityType = typeof(TEntity);
@@ -226,16 +220,16 @@ namespace Infrastructure
             var tableName = entityType.Name;
 
             var whereClause = string.Join(" OR ", properties.Select(x => $"{x.Name} LIKE @search"));
-            var query = $"select * from {tableName} where {whereClause}";
+            var query = $"SELECT * FROM {tableName} WHERE {whereClause}";
 
             using (var connection = new SqlConnection(connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
                 using (SqlCommand cmd = new SqlCommand(query, connection))
                 {
                     cmd.Parameters.AddWithValue("@search", $"%{search}%");
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    while (reader.Read())
+                    SqlDataReader reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
                     {
                         var entity = Activator.CreateInstance<TEntity>();
                         foreach (var prop in properties)

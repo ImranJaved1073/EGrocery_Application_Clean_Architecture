@@ -1,6 +1,9 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Domain;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Infrastructure
 {
@@ -12,17 +15,17 @@ namespace Infrastructure
             _connectionString = connString;
         }
 
-        public List<Category> GetNames()
+        public async Task<List<Category>> GetNamesAsync()
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 string query = "SELECT Id, CategoryName, CategoryDescription, ImgPath, CreatedOn FROM Category";
-                var names = connection.Query<Category>(query).ToList();
-                return names;
+                var names = await connection.QueryAsync<Category>(query);
+                return names.ToList();
             }
         }
 
-        public List<Category> GetParents()
+        public async Task<List<Category>> GetParentsAsync()
         {
             string query = @"SELECT 
                             c.Id,
@@ -39,24 +42,24 @@ namespace Infrastructure
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                var parents = connection.Query<Category>(query).ToList();
-                return parents;
+                var parents = await connection.QueryAsync<Category>(query);
+                return parents.ToList();
             }
         }
 
-        public List<Category> GetCategoriesWithSubCategories()
+        public async Task<List<Category>> GetCategoriesWithSubCategoriesAsync()
         {
             var query = @"SELECT * FROM Category WHERE ParentCategoryID is NULL";
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                connection.Open();
-                var subCategories = connection.Query<Category>(query).ToList();
-                return subCategories;
+                await connection.OpenAsync();
+                var subCategories = await connection.QueryAsync<Category>(query);
+                return subCategories.ToList();
             }
         }
 
-        public List<Category> GetSubCategories(int parentCategoryId)
+        public async Task<List<Category>> GetSubCategoriesAsync(int parentCategoryId)
         {
             var query = @"SELECT 
                     c.Id,
@@ -75,13 +78,13 @@ namespace Infrastructure
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                connection.Open();
-                var subCategories = connection.Query<Category>(query, new { ParentCategoryID = parentCategoryId }).ToList();
-                return subCategories;
+                await connection.OpenAsync();
+                var subCategories = await connection.QueryAsync<Category>(query, new { ParentCategoryID = parentCategoryId });
+                return subCategories.ToList();
             }
         }
 
-        public List<Category> GetNonParentCategories()
+        public async Task<List<Category>> GetNonParentCategoriesAsync()
         {
             var query = @"SELECT 
                     c.Id,
@@ -96,14 +99,13 @@ namespace Infrastructure
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                connection.Open();
-                var nonParentCategories = connection.Query<Category>(query).AsList();
-                return nonParentCategories;
+                await connection.OpenAsync();
+                var nonParentCategories = await connection.QueryAsync<Category>(query);
+                return nonParentCategories.ToList();
             }
         }
 
-
-        public override Category Get(int id)
+        public override async Task<Category> GetAsync(int id)
         {
             var query = @"
                         SELECT c.Id,c.CategoryName,c.CategoryDescription,c.ImgPath,c.CreatedOn,c.ParentCategoryID,pc.CategoryName AS ParentCategoryName
@@ -112,45 +114,20 @@ namespace Infrastructure
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                var category = connection.QuerySingleOrDefault<Category>(query, new { Id = id });
-                return category?? new Category();
+                var category = await connection.QuerySingleOrDefaultAsync<Category>(query, new { Id = id });
+                return category ?? new Category();
             }
-
-
         }
 
-
-        //public List<Category> GetParentCategory()
-        //{
-        //    // get catergories where parent category is not get parent category id and name also
-        //    using (var connection = new SqlConnection(_connectionString))
-        //    {
-        //        connection.Open();
-        //        var command = connection.CreateCommand();
-        //        command.CommandText = "SELECT Id,CategoryName FROM Category where ParentCategoryID is not null";
-        //        var reader = command.ExecuteReader();
-        //        var names = new List<Category>();
-        //        while (reader.Read())
-        //        {
-        //            names.Add(new Category
-        //            {
-        //                Id = reader.GetInt32(0),
-        //                CategoryName = reader.GetString(1)
-        //            });
-        //        }
-        //        return names;
-        //    }
-        //}
-
-        public override List<Category> Search(string search)
+        public override async Task<List<Category>> SearchAsync(string search)
         {
             string query = @"SELECT Id,CategoryName,CategoryDescription,ImgPath,CreatedOn 
                           FROM Category WHERE CategoryName LIKE @search";
 
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                var categories = connection.Query<Category>(query, new { search = "%" + search + "%" }).ToList();
-                return categories;
+                var categories = await connection.QueryAsync<Category>(query, new { search = "%" + search + "%" });
+                return categories.ToList();
             }
         }
     }

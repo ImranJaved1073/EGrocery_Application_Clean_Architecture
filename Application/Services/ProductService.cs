@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain;
 
@@ -16,44 +13,44 @@ namespace Application.Services
             _productRepository = productRepository;
         }
 
-        public IEnumerable<Product> GetAllProducts()
+        public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            return _productRepository.Get();
+            return await _productRepository.GetAsync();
         }
 
-        public Product GetProductById(int id)
+        public async Task<Product> GetProductByIdAsync(int id)
         {
-            return _productRepository.Get(id);
+            return await _productRepository.GetAsync(id);
         }
 
-        public void CreateProduct(Product product)
+        public async Task CreateProductAsync(Product product)
         {
-            _productRepository.Add(product);
+            await _productRepository.AddAsync(product);
         }
 
-        public void UpdateProduct(Product product)
+        public async Task UpdateProductAsync(Product product)
         {
-            _productRepository.Update(product);
+            await _productRepository.UpdateAsync(product);
         }
 
-        public void DeleteProduct(int id)
+        public async Task DeleteProductAsync(int id)
         {
-            _productRepository.Delete(id);
+            await _productRepository.DeleteAsync(id);
         }
 
-        public List<Product> GetProductsByCategory(int categoryId)
+        public async Task<List<Product>> GetProductsByCategoryAsync(int categoryId)
         {
-            return _productRepository.GetProductsByCategory(categoryId);
+            return await _productRepository.GetProductsByCategoryAsync(categoryId);
         }
 
-        public List<Product> SearchProducts(string search)
+        public async Task<List<Product>> SearchProductsAsync(string search)
         {
-            return _productRepository.Search(search);
+            return await _productRepository.SearchAsync(search);
         }
 
-        public Product GetProductIfExists(string name, int categoryID, int brandID)
+        public async Task<Product> GetProductIfExistsAsync(string name, int categoryID, int brandID)
         {
-            return _productRepository.GetProduct(name, categoryID, brandID);
+            return await _productRepository.GetProductAsync(name, categoryID, brandID);
         }
     }
 }

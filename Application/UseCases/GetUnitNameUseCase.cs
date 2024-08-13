@@ -1,8 +1,4 @@
 ﻿using Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.UseCases
@@ -16,9 +12,10 @@ namespace Application.UseCases
             _repository = repository;
         }
 
-        public string? GetName(int id)
+        public async Task<string?> GetNameAsync(int id)
         {
-            return _repository.Get(id).Name;
+            var unit = await _repository.GetAsync(id);
+            return unit?.Name;
         }
     }
 }
