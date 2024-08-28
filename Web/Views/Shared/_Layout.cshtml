@@ -10,6 +10,7 @@
     <link href="~/lib/slick-carousel/slick/slick.css" rel="stylesheet" />
     <link href="~/lib/slick-carousel/slick/slick-theme.css" rel="stylesheet" />
     <link href="~/lib/nouislider/dist/nouislider.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css" rel="stylesheet" />
 
     <link rel="shortcut icon" type="image/x-icon" href="~/images/favicon/favicon.ico">
 
@@ -260,5 +261,10 @@
     @await RenderSectionAsync("ShopItemsScripts", required: false)
     @await RenderSectionAsync("ShopItemScripts", required: false)
     @await RenderSectionAsync("Scripts", required: false)
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+    <script src="~/microsoft/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/orderConfirm.js"></script>
+
+
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 @foreach (var product in Model)
 {
-    <form asp-controller="Cart" asp-action="AddToCart" asp-route-id="@product.Id" method="post">
+    <form id="form-cart-@product.Id" method="post">
         <div class="col">
             <!-- card -->
             <div class="card card-product-v2 h-100">
@@ -33,7 +33,7 @@
                     <input type="number" step="1" max="10" value="1" name="Quantity" class="quantity-field form-control-sm form-input" hidden />
                     <div class="product-fade-block">
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary rounded-pill">Add to Cart</button>
+                            <button type="button" class="btn btn-primary rounded-pill" onclick="addToCart(@product.Id)">Add to Cart</button>
                         </div>
                     </div>
                 </div>
@@ -43,3 +43,35 @@
         </div>
     </form>
 }
+
+<script>
+    function addToCart(productId) {
+        var form = $("#form-cart-" + productId);
+        var quantity = form.find('input[name="Quantity"]').val();
+
+        $.ajax({
+            url: '/Cart/AddToCart',
+            type: 'POST',
+            data: {
+                id: productId,
+                p: { Quantity: quantity }
+            },
+            success: function (response) {
+                if (response.success) {
+                    // Update cart display, e.g., update cart icon with new total quantity
+                    $('#cartTotalQuantity').text(response.totalQuantity);
+                    $('#cartTotalPrice').text(response.totalPrice);
+                    alert("Item added to cart successfully!");
+                } else if (response.redirectUrl) {
+                    // Redirect to login if not authenticated
+                    window.location.href = response.redirectUrl;
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                alert('An error occurred while adding the product to the cart.');
+            }
+        });
+    }
+</script>

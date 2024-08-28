@@ -1,34 +1,15 @@
-using Domain;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using Web.Data;
-using Infrastructure;
 using Application.Services;
 using Application.UseCases;
-using Web.Hubs;
+using Domain;
+using Infrastructure;
+using Nelibur.ObjectMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminPolicy", policy =>
-    policy.RequireClaim(ClaimTypes.Email, "admin@gmail.com"));
-
-});
-//builder.Services.AddAuthorizationBuilder()
-//    .AddPolicy("AdminPolicy", policy =>
-//    policy.RequireClaim(ClaimTypes.Email, "abcd@gmail.com"));
-
+builder.Services.AddControllers();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<OrderDetailService>();
@@ -36,7 +17,6 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<BrandService>();
 builder.Services.AddScoped<GetUnitNameUseCase>();
 builder.Services.AddScoped<GetUnitsUseCase>();
-
 
 builder.Services.AddTransient<IProductRepository, ProductRepository>(provider =>
     new ProductRepository(@"Data Source=DESKTOP-EQ55Q8H\SQLEXPRESS;Initial Catalog=GroceryDb;Integrated Security=True;Persist Security Info=False;Pooling=False;Multiple Active Result Sets=False;Encrypt=False;Trust Server Certificate=True;Command Timeout=0"));
@@ -51,35 +31,37 @@ builder.Services.AddScoped<IRepository<Unit>>(provider => new GenericRepository<
 builder.Services.AddSignalR();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
-builder.Services.AddMemoryCache();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+TinyMapper.Bind<EGrcoerAPI.Models.Category, Category>();
+TinyMapper.Bind<Category, EGrcoerAPI.Models.Category>();
+TinyMapper.Bind<List<EGrcoerAPI.Models.Category>, List<Category>>();
+TinyMapper.Bind<List<Category>, List<EGrcoerAPI.Models.Category>>();
+TinyMapper.Bind<EGrcoerAPI.Models.Product, Product>();
+TinyMapper.Bind<Product, EGrcoerAPI.Models.Product>();
+TinyMapper.Bind<List<EGrcoerAPI.Models.Product>, List<Product>>();
+TinyMapper.Bind<List<Product>, List<EGrcoerAPI.Models.Product>>();
+
+TinyMapper.Bind<EGrcoerAPI.Models.SubCategoryViewModel, SubCategoryViewModel>();
+TinyMapper.Bind<SubCategoryViewModel, EGrcoerAPI.Models.SubCategoryViewModel>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseMigrationsEndPoint();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
-else
-{
-    //app.UseStatusCodePages();
-    app.UseStatusCodePagesWithRedirects("/ErrorPages/{0}");
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+
+
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-app.UseSession();
 
 app.UseAuthorization();
-app.MapHub<OrderNotificationHub>("/orderNotificationHub");
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
+
+app.MapControllers();
 
 app.Run();

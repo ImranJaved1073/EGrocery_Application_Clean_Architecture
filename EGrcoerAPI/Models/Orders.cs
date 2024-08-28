@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-namespace Domain
+namespace EGrcoerAPI.Models
 {
     public class Orders
     {
@@ -17,7 +17,8 @@ namespace Domain
 
         public decimal TotalBill { get; set; }
         //public decimal TotalDiscount { get; set; }
-       
+        [NotMapped]
+        public CheckOut? CheckOut { get; set; }
         public DateTime OrderDeliveryDate { get; set; }
         public string? PaymentMethod { get; set; }
 

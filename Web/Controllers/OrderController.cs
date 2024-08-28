@@ -4,8 +4,10 @@ using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Web.Hubs;
 using Web.Models;
 
 namespace Web.Controllers
@@ -19,9 +21,11 @@ namespace Web.Controllers
         private readonly OrderService _orderService;
         private readonly OrderDetailService _orderDetailService;
         private readonly GetUnitNameUseCase _unitNameUsecase;
+        private readonly IHubContext<OrderNotificationHub> _hubContext;
 
         public OrderController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager,
-            OrderService orderService, OrderDetailService orderDetailService, ILogger<OrderController> logger, ProductService productService, GetUnitNameUseCase unitNameUseCase)
+            OrderService orderService, OrderDetailService orderDetailService, ILogger<OrderController> logger,
+            ProductService productService, GetUnitNameUseCase unitNameUseCase, IHubContext<OrderNotificationHub> hubContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -30,6 +34,7 @@ namespace Web.Controllers
             _logger = logger;
             _productService = productService;
             _unitNameUsecase = unitNameUseCase;
+            _hubContext = hubContext;
         }
 
         public IActionResult Index()
@@ -54,15 +59,12 @@ namespace Web.Controllers
                         OrderDate = DateTime.Now,
                         Status = "Pending",
                         TotalBill = cart.TotalPrice,
-                        CheckOut = new CheckOut
-                        {
-                            OrderDeliveryDate = DateTime.Today.AddDays(1),
-                            PaymentMethod = "Cash on Delivery",
-                            Address = odrs.Address,
-                            City = odrs.City ?? "",
-                            ZipCode = odrs.ZipCode,
-                            State = odrs.State ?? "",
-                        },
+                        OrderDeliveryDate = DateTime.Now.AddDays(1),
+                        PaymentMethod = "Cash on Delivery",
+                        Address = odrs.Address,
+                        City = odrs.City ?? "",
+                        ZipCode = odrs.ZipCode,
+                        State = odrs.State ?? "",
                         OrderDetails = cart.Items.Select(x => new OrderDetail
                         {
                             ProductId = x.Id,
@@ -78,8 +80,13 @@ namespace Web.Controllers
                     foreach (var item in order.OrderDetails)
                     {
                         item.OrderId = (await _orderService.GetbyOrderNoAsync(order.OrderNum)).Id;
+                        var product = await _productService.GetProductByIdAsync(item.ProductId);
+                        product.Quantity -= item.Quantity;
+                        await _productService.UpdateProductAsync(product);
                         await _orderDetailService.AddOrderDetailAsync(item);
                     }
+
+                    await _hubContext.Clients.All.SendAsync("ReceiveOrderStatus", order.OrderNum, "Pending");
 
                     CookieHelper.ClearCartCookies(HttpContext, user.Id);
                     return RedirectToAction("Index", "Home");
@@ -134,11 +141,14 @@ namespace Web.Controllers
             }
             order.Status = status;
             await _orderService.UpdateStatusAsync(order);
+
+            await _hubContext.Clients.All.SendAsync("ReceiveOrderStatus", order.OrderNum, status);
+
             return RedirectToAction("OrderDetails", "Order", new { id = id });
         }
 
         [Authorize(Policy = "AdminPolicy")]
-        public async Task<IActionResult> ViewOrder(string statusFilter, DateTime? startDate, DateTime? endDate, string customerName, string ordernumber, int? id)
+        public async Task<IActionResult> ViewOrder(string statusFilter, DateTime? startDate, DateTime? endDate, string customerName, string ordernumber, int? Id)
         {
             var orders = (await _orderService.GetAllOrdersAsync()).ToList();
             var status = orders.Select(o => o.Status).Distinct().ToList();
@@ -173,12 +183,12 @@ namespace Web.Controllers
                 }
             }
 
-            if (id.HasValue)
+            if (Id.HasValue)
             {
-                var order = orders.FirstOrDefault(x => x.Id == id.Value);
+                var order = orders.FirstOrDefault(x => x.Id == Id.Value);
                 if (order != null)
                 {
-                    order.OrderDetails = (await _orderDetailService.GetAllAsync()).Where(x => x.OrderId == id.Value).ToList();
+                    order.OrderDetails = (await _orderDetailService.GetAllAsync()).Where(x => x.OrderId == Id.Value).ToList();
                     foreach (var detail in order.OrderDetails)
                     {
                         detail.Product = await _productService.GetProductByIdAsync(detail.ProductId);
@@ -196,13 +206,8 @@ namespace Web.Controllers
 
         public static string GenerateOrderNumber()
         {
-            // Get the current timestamp in a specific format
             string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-
-            // Generate a new GUID and take only the first 8 characters for brevity
             string guidComponent = Guid.NewGuid().ToString("N").Substring(0, 8);
-
-            // Combine the timestamp and GUID components to form a unique order number
             return $"{timestamp}-{guidComponent}";
         }
     }

@@ -11,13 +11,13 @@ namespace Web.Controllers
     {
         private readonly ProductService _productService;
         private readonly OrderService _orderService;
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly CategoryService _categoryService;
 
-        public AdminController(ProductService productService, OrderService orderService, ICategoryRepository categoryRepository)
+        public AdminController(ProductService productService, OrderService orderService, CategoryService categoryService)
         {
             _productService = productService;
             _orderService = orderService;
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
         }
 
         public async Task<IActionResult> Dashboard()
@@ -26,7 +26,7 @@ namespace Web.Controllers
             ViewBag.TotalSales = orders.Sum(x => x.TotalBill);
             ViewBag.TotalOrders = orders.Count();
             ViewBag.TotalProducts = (await _productService.GetAllProductsAsync()).Count();
-            ViewBag.TotalCategories = (await _categoryRepository.GetAsync()).Count();
+            ViewBag.TotalCategories = (await _categoryService.GetAllAsync()).Count();
             return View();
         }
     }

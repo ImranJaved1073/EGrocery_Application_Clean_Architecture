@@ -1,0 +1,6 @@
+@EGrcoerAPI_HostAddress = http://localhost:5174
+
+GET {{EGrcoerAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

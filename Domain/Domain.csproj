@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Entities\" />
-    <Folder Include="Interfaces\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +35,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NuGet.Protocol" Version="6.10.1" />
+    <PackageReference Include="TinyMapper" Version="3.0.3" />
   </ItemGroup>
 
 </Project>

@@ -89,7 +89,7 @@
                                 {
                                     <tr>
                                         <td>@order.OrderNum</td>
-                                        <td>@order.User.UserName</td>
+                                        <td>@order.User?.UserName</td>
                                         <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
                                         <td>
                                             <span class="badge bg-@(order.Status == "Pending" ? "warning" : order.Status == "Delivered" ? "success" : order.Status == "Processing" ? "info":"danger")">@order.Status</span>

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
 public static class CookieHelper
 {
+
     public static void SetCookie(HttpContext context, string key, object value, int? expireTime, string userId)
     {
         CookieOptions option = new CookieOptions();
@@ -21,16 +21,7 @@ public static class CookieHelper
         // Update the list of user-specific cookie keys
         var userCookieListKey = $"UserCookies_{userId}";
         var existingCookies = context.Request.Cookies[userCookieListKey];
-
-        List<string> userCookies;
-        if (existingCookies != null)
-        {
-            userCookies = JsonConvert.DeserializeObject<List<string>>(existingCookies) ?? new List<string>();
-        }
-        else
-        {
-            userCookies = new List<string>();
-        }
+        List<string> userCookies = existingCookies != null ? JsonConvert.DeserializeObject<List<string>>(existingCookies) : new List<string>();
 
         if (!userCookies.Contains(uniqueKey))
         {
@@ -41,13 +32,9 @@ public static class CookieHelper
 
     public static T GetCookie<T>(HttpContext context, string key, string userId)
     {
-        var uniqueKey = $"{key}_{userId}";
+        var uniqueKey = $"{key}_{userId}"; // Append userId to make the key unique per user
         var value = context.Request.Cookies[uniqueKey];
-        if (value == null)
-        {
-            return default(T)!;
-        }
-        return JsonConvert.DeserializeObject<T>(value)!;
+        return value == null ? default(T) : JsonConvert.DeserializeObject<T>(value);
     }
 
     public static void ClearCartCookies(HttpContext context, string userId)
@@ -56,7 +43,7 @@ public static class CookieHelper
         var existingCookies = context.Request.Cookies[userCookieListKey];
         if (existingCookies != null)
         {
-            List<string> userCookies = JsonConvert.DeserializeObject<List<string>>(existingCookies) ?? new List<string>();
+            List<string> userCookies = JsonConvert.DeserializeObject<List<string>>(existingCookies);
             foreach (var cookie in userCookies)
             {
                 context.Response.Cookies.Delete(cookie);

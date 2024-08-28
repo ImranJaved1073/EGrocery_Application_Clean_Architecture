@@ -52,7 +52,7 @@ namespace Web.Controllers
                 product.BrandName = await _brandService.GetBrandNameAsync(product.BrandID);
             }
 
-            const int pageSize = 5;
+            const int pageSize = 15;
             var totalRecords = products.Count();
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
             if (pageNumber <= 0)

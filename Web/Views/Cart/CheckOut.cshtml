@@ -143,7 +143,40 @@
     <script src="~/js/theme.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+    <script src="~/microsoft/signalr/dist/browser/signalr.js"></script>
+
+    <script type="text/javascript">
+        // Establish a connection to the hub
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/orderNotificationHub")
+            .build();
+
+        // Start the connection
+        connection.start().then(function () {
+            console.log("SignalR connected");
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        connection.on("ReceiveOrderStatus", function (orderNumber, status) {
+            const message = `Your order ${orderNumber} status is now: ${status}`;
+            alert(message);
+            console.log(message);
+            // Display the toast notification.
+            Toastify({
+                text: message,
+                duration: 5000,
+                close: true,
+                gravity: "top", // top or bottom
+                position: "right", // left, center or right
+                backgroundColor: "#4fbe87",
+            }).showToast();
+        });
+
+    </script>
 }
+
 
 
 

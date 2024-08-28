@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{FA4D4365-0D7E-47D1-BD6F-1BA802A13785}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{62F765B9-82CE-423F-87A7-3122E5E03EB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{62F765B9-82CE-423F-87A7-3122E5E03EB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EGrocerAPI", "EGrcoerAPI\EGrocerAPI.csproj", "{6C0EBE27-2328-421E-B15E-2B87B1A1C0B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{62F765B9-82CE-423F-87A7-3122E5E03EB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62F765B9-82CE-423F-87A7-3122E5E03EB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62F765B9-82CE-423F-87A7-3122E5E03EB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C0EBE27-2328-421E-B15E-2B87B1A1C0B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C0EBE27-2328-421E-B15E-2B87B1A1C0B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C0EBE27-2328-421E-B15E-2B87B1A1C0B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C0EBE27-2328-421E-B15E-2B87B1A1C0B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

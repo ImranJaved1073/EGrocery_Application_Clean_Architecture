@@ -32,8 +32,7 @@ namespace Web.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            LoadCartFromCookies(user.Id);
-            var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
+            var cart = LoadCartFromCookies(user.Id);
             if (cart == null || cart.Items.Count == 0)
             {
                 cart = new Cart();
@@ -44,46 +43,89 @@ namespace Web.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> AddToCart(Product p, int id)
+        public async Task<JsonResult> AddToCart(int qty, int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
             var user = await _userManager.GetUserAsync(User);
+
+
             if (user != null)
             {
                 if (product != null)
                 {
-                    var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id) ?? new Cart();
+                    var cart = LoadCartFromCookies(user.Id);
 
                     var cartItem = new CartItem
                     {
                         Id = product.Id,
                         Name = product.Name,
                         Price = product.Price,
-                        Quantity = p.Quantity,
+                        Quantity = qty,
                         ImagePath = product.ImagePath,
+                        //Quantity = p.Quantity > product.Quantity ? p.Quantity : product.Quantity,
                         Weight = product.Weight,
                         Unit = await _unitNameUseCase.GetNameAsync(product.UnitID)
                     };
-                    var item = cart.Items.Find(x => x.Id == product.Id);
-                    if (item == null)
+                    if (cart == null )
                     {
+                        cart = new();
                         cart.Items.Add(cartItem);
-                        cart.TotalPrice += cartItem.Price * cartItem.Quantity;
-                        cart.TotalQuantity += cartItem.Quantity;
+                        cart.TotalPrice = product.Price * qty;
+                        cart.TotalQuantity = qty;
                     }
+
                     else
                     {
-                        item.Quantity += p.Quantity;
-                        cart.TotalPrice += item.Price * p.Quantity;
-                        cart.TotalQuantity += p.Quantity;
+                        var item = cart.Items.Find(x => x.Id == product.Id);
+                        if (item?.Quantity > product.Quantity)
+                        {
+                            cartItem.Quantity = product.Quantity;
+                        }
+                        if (item == null)
+                        {
+                            if (item?.Quantity > product.Quantity)
+                            {
+                                cartItem.Quantity = product.Quantity;
+                            }
+                            cart.Items.Add(cartItem);
+                            cart.TotalPrice += cartItem.Price * cartItem.Quantity;
+                            cart.TotalQuantity += cartItem.Quantity;
+                        }
+                        else
+                        {
+                            item.Quantity += qty;
+                            if (item.Quantity > product.Quantity)
+                            {
+                                item.Quantity = product.Quantity;
+                            }
+                            cart.TotalPrice += item.Price * qty;
+                            cart.TotalQuantity += qty;
+                        }
                     }
-                    CookieHelper.SetCookie(HttpContext, "Cart", cart, 4320, user.Id);
+
+
+                    SaveCartToCookies(user.Id, cart);
+
+                    // Return JSON with updated cart information
+                    return Json(new
+                    {
+                        success = true,
+                        totalQuantity = cart.TotalQuantity,
+                        totalPrice = cart.TotalPrice,
+                        message = "Item added to cart successfully!"
+                    });
                 }
-                else return NotFound();
+                else
+                {
+                    return Json(new { success = false, message = "Product not found." });
+                }
             }
-            else return RedirectToAction("Login", "Account");
-            return RedirectToAction("ShopItems", "Home");
+            else
+            {
+                return Json(new { success = false, redirectUrl = Url.Action("Login", "Account") });
+            }
         }
+
 
         [HttpPost]
         [Authorize]
@@ -95,14 +137,14 @@ namespace Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
+            var cart = LoadCartFromCookies(user.Id);
             var cartItem = cart.Items.Find(x => x.Id == id);
             if (cartItem != null)
             {
                 cart.TotalPrice -= cartItem.Price * cartItem.Quantity;
                 cart.TotalQuantity -= cartItem.Quantity;
                 cart.Items.Remove(cartItem);
-                CookieHelper.SetCookie(HttpContext, "Cart", cart, 4320, user.Id);
+                SaveCartToCookies(user.Id,cart);
             }
             return RedirectToAction("Cart");
         }
@@ -117,7 +159,7 @@ namespace Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", user.Id);
+            var cart = LoadCartFromCookies(user.Id);
             var cartItem = cart.Items.Find(x => x.Id == id);
             if (cartItem != null)
             {
@@ -126,7 +168,7 @@ namespace Web.Controllers
                 cartItem.Quantity = quantity;
                 cart.TotalPrice += cartItem.Price * cartItem.Quantity;
                 cart.TotalQuantity += cartItem.Quantity;
-                CookieHelper.SetCookie(HttpContext, "Cart", cart, 4320, user.Id);
+                SaveCartToCookies(user.Id, cart);
             }
             return RedirectToAction("Cart");
         }
@@ -152,26 +194,22 @@ namespace Web.Controllers
             }
         }
 
-        private void LoadCartFromCookies(string userId)
+        private Cart LoadCartFromCookies(string userId)
         {
             var cart = CookieHelper.GetCookie<Cart>(HttpContext, "Cart", userId);
             if (cart != null && cart.UserId == userId)
             {
                 HttpContext.Session.SetString("Cart", JsonConvert.SerializeObject(cart));
             }
+
+            return cart!;
         }
 
-        private void SaveCartToCookies(string userId)
+        private void SaveCartToCookies(string userId, Cart cart)
         {
-            var cartData = HttpContext.Session.GetString("Cart");
-            if (cartData != null)
+            if (cart != null)
             {
-                var cart = JsonConvert.DeserializeObject<Cart>(cartData);
-                if (cart != null)
-                {
-                    cart.UserId = userId;
-                    CookieHelper.SetCookie(HttpContext, "Cart", cart, 4320, userId);
-                }
+                CookieHelper.SetCookie(HttpContext, "Cart", cart, 4320, userId);
             }
         }
     }
