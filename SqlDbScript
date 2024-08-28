@@ -1,0 +1,190 @@
+CREATE TABLE [dbo].[AspNetRoleClaims] (
+    [Id]         INT            IDENTITY (1, 1) NOT NULL,
+    [RoleId]     NVARCHAR (450) NOT NULL,
+    [ClaimType]  NVARCHAR (MAX) NULL,
+    [ClaimValue] NVARCHAR (MAX) NULL,
+    CONSTRAINT [PK_AspNetRoleClaims] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_AspNetRoleClaims_AspNetRoles_RoleId] FOREIGN KEY ([RoleId]) REFERENCES [dbo].[AspNetRoles] ([Id]) ON DELETE CASCADE
+);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_AspNetRoleClaims_RoleId]
+    ON [dbo].[AspNetRoleClaims]([RoleId] ASC);
+
+
+CREATE TABLE [dbo].[AspNetRoles] (
+    [Id]               NVARCHAR (450) NOT NULL,
+    [Name]             NVARCHAR (256) NULL,
+    [NormalizedName]   NVARCHAR (256) NULL,
+    [ConcurrencyStamp] NVARCHAR (MAX) NULL,
+    CONSTRAINT [PK_AspNetRoles] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [RoleNameIndex]
+    ON [dbo].[AspNetRoles]([NormalizedName] ASC) WHERE ([NormalizedName] IS NOT NULL);
+
+
+
+
+CREATE TABLE [dbo].[AspNetUserClaims] (
+    [Id]         INT            IDENTITY (1, 1) NOT NULL,
+    [UserId]     NVARCHAR (450) NOT NULL,
+    [ClaimType]  NVARCHAR (MAX) NULL,
+    [ClaimValue] NVARCHAR (MAX) NULL,
+    CONSTRAINT [PK_AspNetUserClaims] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_AspNetUserClaims_AspNetUsers_UserId] FOREIGN KEY ([UserId]) REFERENCES [dbo].[AspNetUsers] ([Id]) ON DELETE CASCADE
+);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_AspNetUserClaims_UserId]
+    ON [dbo].[AspNetUserClaims]([UserId] ASC);
+
+
+
+CREATE TABLE [dbo].[AspNetUserLogins] (
+    [LoginProvider]       NVARCHAR (128) NOT NULL,
+    [ProviderKey]         NVARCHAR (128) NOT NULL,
+    [ProviderDisplayName] NVARCHAR (MAX) NULL,
+    [UserId]              NVARCHAR (450) NOT NULL,
+    CONSTRAINT [PK_AspNetUserLogins] PRIMARY KEY CLUSTERED ([LoginProvider] ASC, [ProviderKey] ASC),
+    CONSTRAINT [FK_AspNetUserLogins_AspNetUsers_UserId] FOREIGN KEY ([UserId]) REFERENCES [dbo].[AspNetUsers] ([Id]) ON DELETE CASCADE
+);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_AspNetUserLogins_UserId]
+    ON [dbo].[AspNetUserLogins]([UserId] ASC);
+
+
+
+
+CREATE TABLE [dbo].[AspNetUserRoles] (
+    [UserId] NVARCHAR (450) NOT NULL,
+    [RoleId] NVARCHAR (450) NOT NULL,
+    CONSTRAINT [PK_AspNetUserRoles] PRIMARY KEY CLUSTERED ([UserId] ASC, [RoleId] ASC),
+    CONSTRAINT [FK_AspNetUserRoles_AspNetRoles_RoleId] FOREIGN KEY ([RoleId]) REFERENCES [dbo].[AspNetRoles] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_AspNetUserRoles_AspNetUsers_UserId] FOREIGN KEY ([UserId]) REFERENCES [dbo].[AspNetUsers] ([Id]) ON DELETE CASCADE
+);
+
+
+GO
+CREATE NONCLUSTERED INDEX [IX_AspNetUserRoles_RoleId]
+    ON [dbo].[AspNetUserRoles]([RoleId] ASC);
+
+
+
+
+CREATE TABLE [dbo].[AspNetUsers] (
+    [Id]                   NVARCHAR (450)     NOT NULL,
+    [UserName]             NVARCHAR (256)     NULL,
+    [NormalizedUserName]   NVARCHAR (256)     NULL,
+    [Email]                NVARCHAR (256)     NULL,
+    [NormalizedEmail]      NVARCHAR (256)     NULL,
+    [EmailConfirmed]       BIT                NOT NULL,
+    [PasswordHash]         NVARCHAR (MAX)     NULL,
+    [SecurityStamp]        NVARCHAR (MAX)     NULL,
+    [ConcurrencyStamp]     NVARCHAR (MAX)     NULL,
+    [PhoneNumber]          NVARCHAR (MAX)     NULL,
+    [PhoneNumberConfirmed] BIT                NOT NULL,
+    [TwoFactorEnabled]     BIT                NOT NULL,
+    [LockoutEnd]           DATETIMEOFFSET (7) NULL,
+    [LockoutEnabled]       BIT                NOT NULL,
+    [AccessFailedCount]    INT                NOT NULL,
+    CONSTRAINT [PK_AspNetUsers] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+GO
+CREATE NONCLUSTERED INDEX [EmailIndex]
+    ON [dbo].[AspNetUsers]([NormalizedEmail] ASC);
+
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [UserNameIndex]
+    ON [dbo].[AspNetUsers]([NormalizedUserName] ASC) WHERE ([NormalizedUserName] IS NOT NULL);
+
+
+CREATE TABLE [dbo].[AspNetUserTokens] (
+    [UserId]        NVARCHAR (450) NOT NULL,
+    [LoginProvider] NVARCHAR (128) NOT NULL,
+    [Name]          NVARCHAR (128) NOT NULL,
+    [Value]         NVARCHAR (MAX) NULL,
+    CONSTRAINT [PK_AspNetUserTokens] PRIMARY KEY CLUSTERED ([UserId] ASC, [LoginProvider] ASC, [Name] ASC),
+    CONSTRAINT [FK_AspNetUserTokens_AspNetUsers_UserId] FOREIGN KEY ([UserId]) REFERENCES [dbo].[AspNetUsers] ([Id]) ON DELETE CASCADE
+);
+
+
+CREATE TABLE [dbo].[Brand] (
+    [Id]        INT            IDENTITY (1, 1) NOT NULL,
+    [BrandName] NVARCHAR (MAX) NOT NULL,
+    CONSTRAINT [PK_Brand] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+
+CREATE TABLE [dbo].[Unit] (
+    [Id]     INT            IDENTITY (1, 1) NOT NULL,
+    [Name]   NVARCHAR (MAX) NULL,
+    [Abbrev] NCHAR (10)     NULL,
+    CONSTRAINT [PK_Unit] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+CREATE TABLE [dbo].[Product] (
+    [Id]          INT             IDENTITY (1, 1) NOT NULL,
+    [Name]        NVARCHAR (100)  NOT NULL,
+    [CategoryID]  INT             NOT NULL,
+    [BrandID]     INT             NOT NULL,
+    [UnitID]      INT             NOT NULL,
+    [Description] NVARCHAR (MAX)  NOT NULL,
+    [ProductCode] NVARCHAR (MAX)  NULL,
+    [Weight]      DECIMAL (18, 2) NOT NULL,
+    [SalePrice]   DECIMAL (18, 2) NOT NULL,
+    [Price]       DECIMAL (18, 2) NOT NULL,
+    [CreatedAt]   DATETIME2 (7)   NOT NULL,
+    [UpdatedAt]   DATETIME2 (7)   NOT NULL,
+    [Quantity]    INT             NOT NULL,
+    [ImagePath]   NVARCHAR (MAX)  NULL,
+    CONSTRAINT [PK_Product] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+CREATE TABLE [dbo].[Orders] (
+    [Id]                INT             IDENTITY (1, 1) NOT NULL,
+    [UserId]            NVARCHAR (MAX)  NULL,
+    [OrderNum]          NVARCHAR (MAX)  NULL,
+    [OrderDate]         DATETIME2 (7)   NOT NULL,
+    [Status]            NVARCHAR (MAX)  NULL,
+    [TotalBill]         DECIMAL (18, 2) NOT NULL,
+    [OrderDeliveryDate] DATETIME        NOT NULL,
+    [PaymentMethod]     NVARCHAR (MAX)  NULL,
+    [Address]           NVARCHAR (MAX)  NOT NULL,
+    [City]              NVARCHAR (MAX)  NULL,
+    [State]             NVARCHAR (MAX)  NULL,
+    [ZipCode]           NVARCHAR (MAX)  NOT NULL,
+    CONSTRAINT [PK_Order] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+CREATE TABLE [dbo].[OrderDetail] (
+    [Id]        INT             IDENTITY (1, 1) NOT NULL,
+    [OrderId]   INT             NOT NULL,
+    [ProductId] INT             NOT NULL,
+    [Price]     DECIMAL (18, 2) NOT NULL,
+    [Quantity]  INT             NOT NULL,
+    [Discount]  DECIMAL (18, 2) NOT NULL,
+    CONSTRAINT [PK_OrderDetail] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+CREATE TABLE [dbo].[Category] (
+    [Id]                  INT            IDENTITY (1, 1) NOT NULL,
+    [CategoryName]        NVARCHAR (MAX) NOT NULL,
+    [ParentCategoryID]    INT            NULL,
+    [CategoryDescription] NVARCHAR (MAX) NOT NULL,
+    [ImgPath]             NVARCHAR (MAX) NULL,
+    [CreatedOn]           DATETIME2 (7)  NOT NULL,
+    CONSTRAINT [PK_Category] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
