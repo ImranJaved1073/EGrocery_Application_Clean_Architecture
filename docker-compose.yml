@@ -1,0 +1,28 @@
+version: '3.4'
+
+networks:
+  webappnetwork:
+
+services:
+  webEgroceryDb:
+    container_name: webEgroceryDb
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+        - "1433:1433"
+    environment:
+     - ACCEPT_EULA=Y
+     - MSSQL_SA_PASSWORD=Bsef21m033imran 
+    networks:
+        - webappnetwork
+  web:
+    container_name: webEgrocery
+    ports:
+       - "8080:80"
+    image: ${DOCKER_REGISTRY-}web
+    build:
+      context: .
+      dockerfile: Web/Dockerfile
+    depends_on:
+          - webDb
+    networks:
+        - webappnetwork
