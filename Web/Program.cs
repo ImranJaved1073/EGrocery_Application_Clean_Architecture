@@ -11,7 +11,7 @@ using Web.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -29,6 +29,15 @@ builder.Services.AddAuthorization(options =>
 //    .AddPolicy("AdminPolicy", policy =>
 //    policy.RequireClaim(ClaimTypes.Email, "abcd@gmail.com"));
 
+
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IRepository<OrderDetail>, GenericRepository<OrderDetail>>();
+builder.Services.AddScoped<IRepository<Brand>, GenericRepository<Brand>>();
+builder.Services.AddScoped<IRepository<Unit>, GenericRepository<Unit>>();
+
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<OrderDetailService>();
@@ -38,16 +47,6 @@ builder.Services.AddScoped<GetUnitNameUseCase>();
 builder.Services.AddScoped<GetUnitsUseCase>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<CartService>();
-
-builder.Services.AddTransient<IProductRepository, ProductRepository>(provider =>
-    new ProductRepository(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(provider =>
-    new CategoryRepository(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
-builder.Services.AddScoped<IOrderRepository, OrderRepository>(provider =>
-    new OrderRepository(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
-builder.Services.AddScoped<IRepository<OrderDetail>>(provider => new GenericRepository<OrderDetail>(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
-builder.Services.AddScoped<IRepository<Brand>, GenericRepository<Brand>>(provider => new GenericRepository<Brand>(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
-builder.Services.AddScoped<IRepository<Unit>>(provider => new GenericRepository<Unit>(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
 
 builder.Services.AddSignalR();
 builder.Services.AddControllersWithViews();
