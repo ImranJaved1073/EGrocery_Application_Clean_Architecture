@@ -106,7 +106,6 @@ namespace Web.Controllers
 
                     SaveCartToCookies(user.Id, cart);
 
-                    // Return JSON with updated cart information
                     return Json(new
                     {
                         success = true,

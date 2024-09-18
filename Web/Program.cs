@@ -36,17 +36,18 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<BrandService>();
 builder.Services.AddScoped<GetUnitNameUseCase>();
 builder.Services.AddScoped<GetUnitsUseCase>();
-
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<CartService>();
 
 builder.Services.AddTransient<IProductRepository, ProductRepository>(provider =>
-    new ProductRepository(@"Data Source=DESKTOP-EQ55Q8H\SQLEXPRESS;Initial Catalog=GroceryDb;Integrated Security=True;Persist Security Info=False;Pooling=False;Multiple Active Result Sets=False;Encrypt=False;Trust Server Certificate=True;Command Timeout=0"));
+    new ProductRepository(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(provider =>
-    new CategoryRepository(@"Data Source=DESKTOP-EQ55Q8H\SQLEXPRESS;Initial Catalog=GroceryDb;Integrated Security=True;Persist Security Info=False;Pooling=False;Multiple Active Result Sets=False;Encrypt=False;Trust Server Certificate=True;Command Timeout=0"));
+    new CategoryRepository(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
 builder.Services.AddScoped<IOrderRepository, OrderRepository>(provider =>
-    new OrderRepository(@"Data Source=DESKTOP-EQ55Q8H\SQLEXPRESS;Initial Catalog=GroceryDb;Integrated Security=True;Persist Security Info=False;Pooling=False;Multiple Active Result Sets=False;Encrypt=False;Trust Server Certificate=True;Command Timeout=0"));
-builder.Services.AddScoped<IRepository<OrderDetail>>(provider => new GenericRepository<OrderDetail>(@"Data Source=DESKTOP-EQ55Q8H\SQLEXPRESS;Initial Catalog=GroceryDb;Integrated Security=True;Persist Security Info=False;Pooling=False;Multiple Active Result Sets=False;Encrypt=False;Trust Server Certificate=True;Command Timeout=0"));
-builder.Services.AddScoped<IRepository<Brand>, GenericRepository<Brand>>(provider => new GenericRepository<Brand>(@"Data Source=DESKTOP-EQ55Q8H\SQLEXPRESS;Initial Catalog=GroceryDb;Integrated Security=True;Persist Security Info=False;Pooling=False;Multiple Active Result Sets=False;Encrypt=False;Trust Server Certificate=True;Command Timeout=0"));
-builder.Services.AddScoped<IRepository<Unit>>(provider => new GenericRepository<Unit>(@"Data Source=DESKTOP-EQ55Q8H\SQLEXPRESS;Initial Catalog=GroceryDb;Integrated Security=True;Persist Security Info=False;Pooling=False;Multiple Active Result Sets=False;Encrypt=False;Trust Server Certificate=True;Command Timeout=0"));
+    new OrderRepository(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
+builder.Services.AddScoped<IRepository<OrderDetail>>(provider => new GenericRepository<OrderDetail>(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
+builder.Services.AddScoped<IRepository<Brand>, GenericRepository<Brand>>(provider => new GenericRepository<Brand>(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
+builder.Services.AddScoped<IRepository<Unit>>(provider => new GenericRepository<Unit>(@"Server=tcp:quran-sql-db-server.database.windows.net,1433;Initial Catalog=GroceryDb;Persist Security Info=False;User ID=imranjavedlogin;Password=Bsef21m033;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
 
 builder.Services.AddSignalR();
 builder.Services.AddControllersWithViews();

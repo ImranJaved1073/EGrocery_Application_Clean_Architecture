@@ -2,6 +2,7 @@
 using Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,26 +15,41 @@ namespace Web.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly CategoryService _categoryService;
         private readonly ProductService _productService;
+        private readonly IMemoryCache _cache;
 
-        public CategoryController(IWebHostEnvironment env, CategoryService categoryService, ProductService productService)
+        public CategoryController(IWebHostEnvironment env, CategoryService categoryService, ProductService productService, IMemoryCache cache)
         {
             _env = env;
-            _productService = productService;
             _categoryService = categoryService;
+            _productService = productService;
+            _cache = cache;
         }
 
         public async Task<IActionResult> List(string search, int pageNumber)
         {
-            List<Category> categories;
-            if (!string.IsNullOrEmpty(search))
+            List<Category>? categories;
+            string cacheKey = $"CategoryList_{search}";
+
+            if (!_cache.TryGetValue(cacheKey, out categories))
             {
-                categories = (await _categoryService.SearchCategoryAsync(search)).ToList();
+                if (!string.IsNullOrEmpty(search))
+                {
+                    categories = (await _categoryService.SearchCategoryAsync(search)).ToList();
+                }
+                else
+                {
+                    categories = (await _categoryService.GetParentCategoriesAsync()).ToList();
+                }
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    SlidingExpiration = TimeSpan.FromMinutes(1)
+                };
+
+                _cache.Set(cacheKey, categories, cacheEntryOptions);
             }
-            else
-            {
-                categories = (await _categoryService.GetParentCategoriesAsync()).ToList();
-            }
-            foreach (var category in categories)
+
+            foreach (var category in categories!)
             {
                 category.ProductCount = (await _productService.GetProductsByCategoryAsync(category.Id)).Count();
             }
@@ -56,8 +72,9 @@ namespace Web.Controllers
 
         public async Task<IActionResult> Create(int id)
         {
-            var categories = (await _categoryService.GetNamesAsync()).ToList();
+            var categories = await GetCategoriesFromCacheAsync();
             ViewBag.Categories = new SelectList(categories, "Id", "CategoryName");
+
             if (id > 0)
             {
                 return View(await _categoryService.GetCategoryByIdAsync(id));
@@ -70,7 +87,12 @@ namespace Web.Controllers
         {
             if (c.CategoryImg != null)
                 c.ImgPath = GetPath(c.CategoryImg);
+
             await _categoryService.AddCategoryAsync(c);
+
+            // Invalidate the category list cache after adding a new category
+            _cache.Remove("CategoryList_");
+
             return RedirectToAction("List", "Category");
         }
 
@@ -96,6 +118,10 @@ namespace Web.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             await _categoryService.RemoveCategoryAsync(id);
+
+            // Invalidate the category list cache after deleting a category
+            _cache.Remove("CategoryList_");
+
             return RedirectToAction("List", "Category");
         }
 
@@ -104,7 +130,12 @@ namespace Web.Controllers
         {
             if (c.CategoryImg != null)
                 c.ImgPath = GetPath(c.CategoryImg);
+
             await _categoryService.UpdateCategoryAsync(c);
+
+            // Invalidate the category list cache after updating a category
+            //_cache.Remove("CategoryList_");
+
             return RedirectToAction("List", "Category");
         }
 
@@ -130,8 +161,21 @@ namespace Web.Controllers
                     }
                     await _categoryService.UpdateCategoryAsync(category);
                 }
+
+                // Invalidate the category list cache after creating or editing a category
+                _cache.Remove("CategoryList_");
             }
             return Json(new { success = true, message = "Saved Successfully" });
+        }
+
+        private async Task<IEnumerable<Category>> GetCategoriesFromCacheAsync()
+        {
+            if (!_cache.TryGetValue("Categories", out IEnumerable<Category>? categories))
+            {
+                categories = (await _categoryService.GetNamesAsync()).ToList();
+                _cache.Set("Categories", categories, TimeSpan.FromMinutes(30));
+            }
+            return categories!;
         }
     }
 }
